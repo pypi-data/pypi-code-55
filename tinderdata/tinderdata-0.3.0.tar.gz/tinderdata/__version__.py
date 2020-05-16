@@ -1,0 +1,7 @@
+__title__ = "tinderdata"
+__description__ = "A silly utility to mine your Tinder data."
+__url__ = "https://github.com/fsoubelet/Tinder_Data"
+__version__ = "0.3.0"
+__author__ = "Felix Soubelet"
+__author_email__ = "felix.soubelet@liverpool.ac.uk"
+__license__ = "MIT"
