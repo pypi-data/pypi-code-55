@@ -1,0 +1,1 @@
+from rainbowpy import ColorMap
