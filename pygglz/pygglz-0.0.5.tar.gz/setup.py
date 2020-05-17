@@ -1,0 +1,25 @@
+import setuptools
+
+with open("readme.md", "r", encoding='utf-8') as fh:
+    long_description = fh.read()
+
+with open("version.txt", 'r', encoding='utf-8') as fh:
+    version = fh.read()
+
+setuptools.setup(
+    name="pygglz",
+    version=version,
+    author="Cornelius Buschka",
+    author_email="cbuschka@gmail.com",
+    description="A feature toggle library designed after Java togglz",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/pygglz/pygglz",
+    packages=setuptools.find_packages(),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+    ],
+    python_requires='>=3.6',
+)
