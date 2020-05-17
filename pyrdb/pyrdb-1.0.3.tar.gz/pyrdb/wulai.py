@@ -1,0 +1,70 @@
+import pyrda.sqlserver as sqlserver
+import pyrdo.tuple as rdtpl
+import pyrdo.array as rdarr
+import pyrdo.list as rdlist
+
+
+# test for function notation
+def helloworld(txt: dict(type=str, help='input text')):
+    print(txt)
+
+
+# initial knowledge category in database
+def initial_kc(conn, app_id: dict(type=str, help="the name of km app") = 'caas'):
+    data = (app_id, '0', 'root', '-1', 0)
+    sql = "insert into t_km_kc values('%s','%s','%s','%s',%s)" % data
+    sqlserver.sql_insert(conn, sql)
+
+
+def insert_kc(conn, data):
+    sql = "insert into t_km_kc values('%s','%s','%s','%s',%s)" % data
+    sqlserver.sql_insert(conn, sql)
+
+
+# 批量插入数据，不做是否重复判定
+def insert_kc_batch(conn, arrayData):
+    for i in range(len(arrayData)):
+        item = arrayData[i]
+        data = rdtpl.list_as_tuple(item)
+        insert_kc(conn, data)
+
+
+def select_kc(conn, app_id):
+    sql = "select * from t_km_kc where Fapp_id = '%s' " % app_id
+    res = sqlserver.sql_select(conn, sql)
+    # convert data from sql into array data
+    res = rdarr.array_tupleItem_as_list(res)
+    # print(sql)
+    # print(res)
+    return (res)
+
+
+def upload_kc(conn, app_id, arrayData, id_index):
+    old_data = select_kc(conn, app_id)
+    new_data = arrayData
+    diff_data = rdarr.array_diff(old_data, new_data, id_index)
+    if len(diff_data) > 0:
+        insert_kc_batch(conn, diff_data)
+        res = True
+    else:
+        res = False
+    return res
+
+
+if __name__ == '__main__':
+    helloworld('hawken')
+    print(helloworld.__annotations__)
+    # 初始化数据知识分类数据
+    conn = sqlserver.conn_create("115.159.201.178", "sa", "Hoolilay889@", "rdbe")
+    app_id = "caas"
+    # vinitial_kc(conn,app_id)
+    # 测试分类数据上传
+    mydata = [['caas', '71688', '网商_test', '0', 0]]
+    # insert_kc_batch(conn,mydata)
+    # 测试查询
+    kc_query = select_kc(conn, 'caas')
+    print(kc_query)
+    # print测试上传功能
+    up = upload_kc(conn,'caas',mydata,1)
+    print(up)
+    sqlserver.conn_close(conn)
