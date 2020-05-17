@@ -1,0 +1,1 @@
+"""AMNES 'core' package."""
