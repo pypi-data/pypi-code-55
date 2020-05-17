@@ -1,0 +1,35 @@
+from .shape import Shape
+from .rectangle import Rectangle
+from .arrow import Arrow
+from .point import Point
+
+
+class UniformLoad(Shape):
+    """
+    Downward-pointing arrows indicating a vertical load.
+    The arrows are of equal length and filling a rectangle
+    specified as in the :class:`Rectangle` class.
+
+    Recorded geometric features:
+
+    ==================== =============================================
+    Attribute            Description
+    ==================== =============================================
+    mid_top              Middle point at the top of the row of
+                         arrows (often used for positioning a text).
+    ==================== =============================================
+    """
+
+    def __init__(self, lower_left_corner: Point, width: float, height: float, num_arrows=10):
+        super().__init__()
+        box = Rectangle(lower_left_corner, width, height)
+        self._shapes = {'box': box}
+        dx = float(width) / (num_arrows - 1)
+        for i in range(num_arrows):
+            x = lower_left_corner.x + i * dx
+            start = Point(x, lower_left_corner.y + height)
+            end = Point(x, lower_left_corner.y)
+            self._shapes['arrow%d' % i] = Arrow(start, end)
+
+    def geometric_features(self):
+        return {'mid_top': self._shapes['box'].geometric_features()['upper_mid']}
