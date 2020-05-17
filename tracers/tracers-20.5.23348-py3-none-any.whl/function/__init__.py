@@ -1,0 +1,229 @@
+# Standard library
+import asyncio
+import contextlib
+import functools
+import inspect
+import time
+import uuid
+from contextvars import (
+    ContextVar,
+    Token,
+)
+from typing import (
+    Callable,
+    List,
+    NamedTuple,
+)
+
+# Constants
+CHAR_SPACE = chr(0x20)
+CHAR_INFO = chr(0x1F6C8) + CHAR_SPACE
+CHAR_CHECK_MARK = chr(0X2713)
+CHAR_BROKEN_BAR = chr(0xA6)
+
+# Containers
+Frame = NamedTuple('Frame', [
+    ('event', str),
+    ('function', str),
+    ('level', int),
+    ('timestamp', float),
+])
+
+# Contextvars
+LEVEL: ContextVar[int] = ContextVar('LEVEL', default=0)
+STACK: ContextVar[List[Frame]] = ContextVar('STACK', default=[])
+
+
+def get_function_id(function: Callable):
+    # Adding decorators to a function modify its metadata
+    #   Fortunately functools' wrapped functions keep a reference to the parent
+    while hasattr(function, '__wrapped__'):
+        function = getattr(function, '__wrapped__')
+
+    try:
+        function_signature: str = str(inspect.signature(function))
+    except ValueError:
+        function_signature = '(...)'
+
+    if function.__module__ not in {'__main__'}:
+        return f'{function.__module__}.{function.__name__}{function_signature}'
+
+    return f'{function.__name__}{function_signature}'
+
+
+@contextlib.contextmanager
+def increase_counter(contextvar):
+    token: Token = contextvar.set(contextvar.get() + 1)
+    try:
+        yield
+    finally:
+        contextvar.reset(token)
+
+
+def record_event(clock_id: int, event: str, function: Callable):
+    STACK.get().append(Frame(
+        event=event,
+        function=get_function_id(function),
+        level=LEVEL.get(),
+        timestamp=time.clock_gettime(clock_id),
+    ))
+
+
+def analyze_stack(stack: List[Frame]):
+    stack_levels: List[int] = [frame.level for frame in stack]
+
+    total_time_seconds: float = \
+        stack[-1].timestamp - stack[0].timestamp
+
+    print()
+    print(
+        f'{CHAR_INFO} Finished transaction: {uuid.uuid4().hex}, '
+        f'{total_time_seconds:.2f} seconds')
+    print()
+    print(f'{"#":>6} {"Timestamp":>9} {"%":>6} {"Total":>9} Nested Call Chain')
+    print()
+
+    counter: int = 0
+    for index, frame in enumerate(stack):
+        indentation: str = (
+            (CHAR_SPACE * 3 + CHAR_BROKEN_BAR) * (frame.level - 1)
+            + (CHAR_SPACE * 3 + CHAR_CHECK_MARK)
+        )
+
+        if frame.event == 'call':
+            counter += 1
+            frame_childs: List[Frame] = \
+                stack[index:stack_levels.index(frame.level, index + 1) + 1]
+
+            relative_timestamp: float = \
+                frame.timestamp - stack[0].timestamp
+
+            raw_time_seconds: float = \
+                frame_childs[-1].timestamp - frame_childs[0].timestamp
+
+            raw_time_ratio: float = (
+                100.0 * raw_time_seconds / total_time_seconds
+                if total_time_seconds > 0.0
+                else 100.0
+            )
+
+            print(
+                f'{counter:>6} '
+                f'{relative_timestamp:>8.2f}s '
+                f'{raw_time_ratio:>5.1f}% '
+                f'{raw_time_seconds:>8.2f}s '
+                f'{indentation} '
+                f'{frame.function}'
+            )
+
+    print()
+
+
+def _get_wrapper(  # noqa: MC001
+    *,
+    clock_id: int = time.CLOCK_MONOTONIC,
+    do_trace: bool = True,
+    stack_analyzer: Callable[[List[Frame]], None] = analyze_stack,
+) -> Callable:
+
+    def decorator(function: Callable) -> Callable:
+
+        if not do_trace:
+
+            # No overhead is introduced
+            wrapper = function
+
+        elif asyncio.iscoroutinefunction(function):
+
+            @functools.wraps(function)
+            async def wrapper(*args, **kwargs):
+                if not LEVEL.get():
+                    STACK.set([])
+
+                with increase_counter(LEVEL):
+                    record_event(clock_id, 'call', function)
+                    result = await function(*args, **kwargs)
+                    record_event(clock_id, 'return', function)
+
+                if not LEVEL.get():
+                    stack_analyzer(STACK.get())
+
+                return result
+
+        elif callable(function):
+
+            @functools.wraps(function)
+            def wrapper(*args, **kwargs):
+                if not LEVEL.get():
+                    STACK.set([])
+
+                with increase_counter(LEVEL):
+                    record_event(clock_id, 'call', function)
+                    result = function(*args, **kwargs)
+                    record_event(clock_id, 'return', function)
+
+                if not LEVEL.get():
+                    stack_analyzer(STACK.get())
+
+                return result
+
+        else:
+
+            # We were not able to wrap this object
+            wrapper = function
+
+        return wrapper
+
+    return decorator
+
+
+def trace_process(
+    *,
+    do_trace: bool = True,
+    stack_analyzer: Callable[[List[Frame]], None] = analyze_stack,
+):
+    return _get_wrapper(
+        clock_id=time.CLOCK_PROCESS_CPUTIME_ID,
+        do_trace=do_trace,
+        stack_analyzer=stack_analyzer,
+    )
+
+
+def trace_thread(
+    *,
+    do_trace: bool = True,
+    stack_analyzer: Callable[[List[Frame]], None] = analyze_stack,
+):
+    return _get_wrapper(
+        clock_id=time.CLOCK_THREAD_CPUTIME_ID,
+        do_trace=do_trace,
+        stack_analyzer=stack_analyzer,
+    )
+
+
+def trace_monotonic(
+    *,
+    do_trace: bool = True,
+    stack_analyzer: Callable[[List[Frame]], None] = analyze_stack,
+):
+    return _get_wrapper(
+        clock_id=time.CLOCK_MONOTONIC,
+        do_trace=do_trace,
+        stack_analyzer=stack_analyzer,
+    )
+
+
+def trace(
+    func: Callable = None,
+    do_trace: bool = True,
+    stack_analyzer: Callable[[List[Frame]], None] = analyze_stack,
+):
+    wrapper = trace_monotonic(
+        do_trace=do_trace,
+        stack_analyzer=stack_analyzer,
+    )
+
+    if func:
+        return wrapper(func)
+
+    return wrapper
