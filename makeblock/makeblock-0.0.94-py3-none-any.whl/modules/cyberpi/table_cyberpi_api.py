@@ -1,0 +1,151 @@
+# Automatic file, do not edit!
+
+class cell():
+    def __init__(self, tag, func, paras, default_value = None):
+        self.tag = tag
+        self.func = func
+        # undifined: add nothing
+        # []: no parameters
+        # [xx, xx]: several parameters
+        self.paras = paras
+        self.default_value = default_value
+        
+        self.package_type = None
+        self.package = None
+
+        self.data_update_callBack = []        
+        self.auto_subscribe_control_flag = True
+        self.get_value_called_count = 0
+        
+        # indicate whether this function has been subscribed
+        self.subscribed_flag = False
+    
+    def update_para(self, para):
+        self.paras = para
+
+
+table_tag = \
+{
+"79b023fb7e007b2291a54784c3ab045f": {"pac": None, "cell": cell("79b023fb7e007b2291a54784c3ab045f", "cyberpi.get_mac_address", (), 0)},
+"3988e0aab4777855379065fc8da2ba34": {"pac": None, "cell": cell("3988e0aab4777855379065fc8da2ba34", "cyberpi.get_battery", (), 0)},
+"84130d80d8bd240c93e5809565d4fb93": {"pac": None, "cell": cell("84130d80d8bd240c93e5809565d4fb93", "cyberpi.get_firmware_version", (), 0)},
+"3636689f7387305b262ef85f68736204": {"pac": None, "cell": cell("3636689f7387305b262ef85f68736204", "cyberpi.get_ble", (), 0)},
+"974853ae311b0874fd141e4dbc7ea504": {"pac": None, "cell": cell("974853ae311b0874fd141e4dbc7ea504", "cyberpi.get_name", (), 0)},
+"3d43914582aed35b01093bddb465dc5a": {"pac": None, "cell": cell("3d43914582aed35b01093bddb465dc5a", "cyberpi.set_name", (), 0)},
+"69d00a7b2ddc1d85e7ed380663f01ecf": {"pac": None, "cell": cell("69d00a7b2ddc1d85e7ed380663f01ecf", "cyberpi.get_brightness", (), 0)},
+"04eeffd3a88cf7eee2bf0cb141518cfd": {"pac": None, "cell": cell("04eeffd3a88cf7eee2bf0cb141518cfd", "cyberpi.get_bri", (), 0)},
+"2469bdefeb4529102292af589e8a2efc": {"pac": None, "cell": cell("2469bdefeb4529102292af589e8a2efc", "cyberpi.get_loudness", (), 0)},
+"4cf92569435ea2828f6e3b6304907430": {"pac": None, "cell": cell("4cf92569435ea2828f6e3b6304907430", "cyberpi.is_tiltback", (), 0)},
+"aeefd935140b9ce16ede5da7b7ada9fa": {"pac": None, "cell": cell("aeefd935140b9ce16ede5da7b7ada9fa", "cyberpi.is_tiltforward", (), 0)},
+"a4cf641a79cf925a87725098646118f9": {"pac": None, "cell": cell("a4cf641a79cf925a87725098646118f9", "cyberpi.is_tiltleft", (), 0)},
+"fec52f5ad18094161cec1b417c7e10f5": {"pac": None, "cell": cell("fec52f5ad18094161cec1b417c7e10f5", "cyberpi.is_tiltright", (), 0)},
+"43c455ca4f76e8a737618fbef054bdbe": {"pac": None, "cell": cell("43c455ca4f76e8a737618fbef054bdbe", "cyberpi.is_faceup", (), 0)},
+"c6830cf56b1a4f9aaee9ab53e89a923d": {"pac": None, "cell": cell("c6830cf56b1a4f9aaee9ab53e89a923d", "cyberpi.is_facedown", (), 0)},
+"c1fb2bd86ac930a853470c2e99c81ea2": {"pac": None, "cell": cell("c1fb2bd86ac930a853470c2e99c81ea2", "cyberpi.is_stand", (), 0)},
+"c6d9801ca9be3f1032f2be41538fa658": {"pac": None, "cell": cell("c6d9801ca9be3f1032f2be41538fa658", "cyberpi.is_handstand", (), 0)},
+"c33fcd8e57ae1e3b4c513f6f3386b4b6": {"pac": None, "cell": cell("c33fcd8e57ae1e3b4c513f6f3386b4b6", "cyberpi.is_shake", (), 0)},
+"e880c1ca448156bf3f371490414e4ee8": {"pac": None, "cell": cell("e880c1ca448156bf3f371490414e4ee8", "cyberpi.is_waveup", (), 0)},
+"aefc483bd0bcd4561ee6d6d2abface7c": {"pac": None, "cell": cell("aefc483bd0bcd4561ee6d6d2abface7c", "cyberpi.is_wavedown", (), 0)},
+"2dd513e5fbaf94cfe7cafdc64ebbeb74": {"pac": None, "cell": cell("2dd513e5fbaf94cfe7cafdc64ebbeb74", "cyberpi.is_waveleft", (), 0)},
+"231b8c48c8b30f532899415153ce868e": {"pac": None, "cell": cell("231b8c48c8b30f532899415153ce868e", "cyberpi.is_waveright", (), 0)},
+"fe32241d6feac2a268f7eafa488761eb": {"pac": None, "cell": cell("fe32241d6feac2a268f7eafa488761eb", "cyberpi.is_clockwise", (), 0)},
+"196145516d82a638b39657e5b657df7c": {"pac": None, "cell": cell("196145516d82a638b39657e5b657df7c", "cyberpi.is_anticlockwise", (), 0)},
+"8a5db13c5c596e0407aa4abbe4f1db48": {"pac": None, "cell": cell("8a5db13c5c596e0407aa4abbe4f1db48", "cyberpi.get_shakeval", (), 0)},
+"1632d0eb591aed54c5762a5dcdab81ed": {"pac": None, "cell": cell("1632d0eb591aed54c5762a5dcdab81ed", "cyberpi.get_wave_angle", (), 0)},
+"822687ed58d16f303cc79e0b03bb6ce4": {"pac": None, "cell": cell("822687ed58d16f303cc79e0b03bb6ce4", "cyberpi.get_wave_speed", (), 0)},
+"1ff145c62ee8412c628e0b0a16fd67fc": {"pac": None, "cell": cell("1ff145c62ee8412c628e0b0a16fd67fc", "cyberpi.get_roll", (), 0)},
+"36119451128173ff12497681ec2502e4": {"pac": None, "cell": cell("36119451128173ff12497681ec2502e4", "cyberpi.get_pitch", (), 0)},
+"6bc201e4c360195c6ef04a99c3adb982": {"pac": None, "cell": cell("6bc201e4c360195c6ef04a99c3adb982", "cyberpi.get_yaw", (), 0)},
+"8f4ae00969ac36f47100a06eee0d5046": {"pac": None, "cell": cell("8f4ae00969ac36f47100a06eee0d5046", "cyberpi.reset_yaw", (), 0)},
+"c9f33e1c6b89d173924779a21a9b1019": {"pac": None, "cell": cell("c9f33e1c6b89d173924779a21a9b1019", "cyberpi.get_acc", (), 0)},
+"55ddb68e0c157494d0f7e9825815ed43": {"pac": None, "cell": cell("55ddb68e0c157494d0f7e9825815ed43", "cyberpi.get_gyro", (), 0)},
+"57f3a0363bf3394221b09dd8c8667892": {"pac": None, "cell": cell("57f3a0363bf3394221b09dd8c8667892", "cyberpi.get_rotation", (), 0)},
+"2e150de47aabc09be2cd468491e39a37": {"pac": None, "cell": cell("2e150de47aabc09be2cd468491e39a37", "cyberpi.reset_rotation", (), 0)},
+"0f4008600f10c30d9500bf0896cb3945": {"pac": None, "cell": cell("0f4008600f10c30d9500bf0896cb3945", "cyberpi.controller.is_press", (), 0)},
+"f57ae52200b5f46041c7804eec7e0423": {"pac": None, "cell": cell("f57ae52200b5f46041c7804eec7e0423", "cyberpi.controller.get_count", (), 0)},
+"87aca6f56a1f74eab8abb4c29616ad3c": {"pac": None, "cell": cell("87aca6f56a1f74eab8abb4c29616ad3c", "cyberpi.controller.reset_count", (), 0)},
+"99350cd953df88e5f025bcef34113717": {"pac": None, "cell": cell("99350cd953df88e5f025bcef34113717", "cyberpi.audio.play", (), 0)},
+"0fd6e3524a5e7c70ccb4ae7194c3ebd4": {"pac": None, "cell": cell("0fd6e3524a5e7c70ccb4ae7194c3ebd4", "cyberpi.audio.play_until", (), 0)},
+"8bd7053a4dd190e81637918be72deb46": {"pac": None, "cell": cell("8bd7053a4dd190e81637918be72deb46", "cyberpi.audio.record", (), 0)},
+"e5e11eee2dfa73a8626ad875188ce3ca": {"pac": None, "cell": cell("e5e11eee2dfa73a8626ad875188ce3ca", "cyberpi.audio.stop_record", (), 0)},
+"a8d3656533d5343390a4545985c40c5d": {"pac": None, "cell": cell("a8d3656533d5343390a4545985c40c5d", "cyberpi.audio.play_record", (), 0)},
+"611cfa431119957e2345e9db178252c6": {"pac": None, "cell": cell("611cfa431119957e2345e9db178252c6", "cyberpi.audio.play_tone", (), 0)},
+"db5f575f0e9b43a42505970665e7f263": {"pac": None, "cell": cell("db5f575f0e9b43a42505970665e7f263", "cyberpi.audio.play_drum", (), 0)},
+"3a5b01ef1cc7cf8d5eb05aa275ab0d3f": {"pac": None, "cell": cell("3a5b01ef1cc7cf8d5eb05aa275ab0d3f", "cyberpi.audio.play_music", (), 0)},
+"487b1f0a257ab4cad6edd09ea1df35a0": {"pac": None, "cell": cell("487b1f0a257ab4cad6edd09ea1df35a0", "cyberpi.audio.play_note", (), 0)},
+"7cf9bc83ad4148ac607d266d30a4d873": {"pac": None, "cell": cell("7cf9bc83ad4148ac607d266d30a4d873", "cyberpi.audio.add_tempo", (), 0)},
+"97f80d0c8e36537051d6c9b21e8a7e56": {"pac": None, "cell": cell("97f80d0c8e36537051d6c9b21e8a7e56", "cyberpi.audio.set_tempo", (), 0)},
+"0b4dbd2d04bdaac5cf2f578c6087d58d": {"pac": None, "cell": cell("0b4dbd2d04bdaac5cf2f578c6087d58d", "cyberpi.audio.get_tempo", (), 0)},
+"f4b0497ab889a85a865a7486dc9c3b20": {"pac": None, "cell": cell("f4b0497ab889a85a865a7486dc9c3b20", "cyberpi.audio.add_vol", (), 0)},
+"c2e5e981c561ba61d2d757a61ff17baa": {"pac": None, "cell": cell("c2e5e981c561ba61d2d757a61ff17baa", "cyberpi.audio.set_vol", (), 0)},
+"4dedceaadf514a624dea51612e1d3f31": {"pac": None, "cell": cell("4dedceaadf514a624dea51612e1d3f31", "cyberpi.audio.get_vol", (), 0)},
+"510b2145fdd0714503879cc98c435d81": {"pac": None, "cell": cell("510b2145fdd0714503879cc98c435d81", "cyberpi.audio.stop", (), 0)},
+"3b6fa373ef8ec0614b60949d7a6498eb": {"pac": None, "cell": cell("3b6fa373ef8ec0614b60949d7a6498eb", "cyberpi.display.set_brush", (), 0)},
+"f5d5d6501e3afd18d87e81b0ec5eadb4": {"pac": None, "cell": cell("f5d5d6501e3afd18d87e81b0ec5eadb4", "cyberpi.display.set_title_color", (), 0)},
+"702530b11223d816f2a79852a5298b7c": {"pac": None, "cell": cell("702530b11223d816f2a79852a5298b7c", "cyberpi.display.rotate_to", (), 0)},
+"064b32a98954fee5dba9c08ce8e9ad37": {"pac": None, "cell": cell("064b32a98954fee5dba9c08ce8e9ad37", "cyberpi.display.off", (), 0)},
+"dbeeb276871d7a91b2466c5fc9c02222": {"pac": None, "cell": cell("dbeeb276871d7a91b2466c5fc9c02222", "cyberpi.console.clear", (), 0)},
+"5d64cc86824e28e871fb85902181ff18": {"pac": None, "cell": cell("5d64cc86824e28e871fb85902181ff18", "cyberpi.console.print", (), 0)},
+"778c0e54274e093926b2012fa3cc6ba4": {"pac": None, "cell": cell("778c0e54274e093926b2012fa3cc6ba4", "cyberpi.console.println", (), 0)},
+"fb465e33a0d73e1ff32e945c30f12836": {"pac": None, "cell": cell("fb465e33a0d73e1ff32e945c30f12836", "cyberpi.chart.set_name", (), 0)},
+"e2c4c0b767853bfb5254e88235ce635b": {"pac": None, "cell": cell("e2c4c0b767853bfb5254e88235ce635b", "cyberpi.chart.clear", (), 0)},
+"9c7c0606827e5299122c6b71119a8bab": {"pac": None, "cell": cell("9c7c0606827e5299122c6b71119a8bab", "cyberpi.linechart.add", (), 0)},
+"953af5bbd66750092d3a1406d53399f3": {"pac": None, "cell": cell("953af5bbd66750092d3a1406d53399f3", "cyberpi.barchart.add", (), 0)},
+"619c6b6529423a26de285696190a8c5c": {"pac": None, "cell": cell("619c6b6529423a26de285696190a8c5c", "cyberpi.excel.add", (), 0)},
+"5119428dbfeb589dac36fb628ca9248d": {"pac": None, "cell": cell("5119428dbfeb589dac36fb628ca9248d", "cyberpi.led.on", (), 0)},
+"0c6872183c51d59d859becb64667c349": {"pac": None, "cell": cell("0c6872183c51d59d859becb64667c349", "cyberpi.led.play", (), 0)},
+"c1de77fafa5b4a4e059515b451a5378d": {"pac": None, "cell": cell("c1de77fafa5b4a4e059515b451a5378d", "cyberpi.led.show", (), 0)},
+"3164e897ffb74c0994c83a84f4938989": {"pac": None, "cell": cell("3164e897ffb74c0994c83a84f4938989", "cyberpi.led.move", (), 0)},
+"883bd62fb06060130e7da7ef5eb29eb6": {"pac": None, "cell": cell("883bd62fb06060130e7da7ef5eb29eb6", "cyberpi.led.off", (), 0)},
+"12d6db993b5874c141e65e740383fd09": {"pac": None, "cell": cell("12d6db993b5874c141e65e740383fd09", "cyberpi.led.add_bri", (), 0)},
+"8fd93cf231967274847b712d132b2647": {"pac": None, "cell": cell("8fd93cf231967274847b712d132b2647", "cyberpi.led.set_bri", (), 0)},
+"f32939dd291b3df36b000e28357ec849": {"pac": None, "cell": cell("f32939dd291b3df36b000e28357ec849", "cyberpi.led.get_bri", (), 0)},
+"bd1de88cc76a8dbff3a0adea09a34234": {"pac": None, "cell": cell("bd1de88cc76a8dbff3a0adea09a34234", "cyberpi.wifi.connect", (), 0)},
+"f0b19cff8669fd061bf3bf8d755a9eee": {"pac": None, "cell": cell("f0b19cff8669fd061bf3bf8d755a9eee", "cyberpi.wifi.is_connect", (), 0)},
+"8161e0b45af7e1d12e2bd714b8b3d47f": {"pac": None, "cell": cell("8161e0b45af7e1d12e2bd714b8b3d47f", "cyberpi.cloud.setkey", (), 0)},
+"434de984f1ad299d904e3deb2cb002e2": {"pac": None, "cell": cell("434de984f1ad299d904e3deb2cb002e2", "cyberpi.cloud.weather", (), 0)},
+"402dae9adbacff802492236ba6c977c2": {"pac": None, "cell": cell("402dae9adbacff802492236ba6c977c2", "cyberpi.cloud.air", (), 0)},
+"70279bf87312616ec7e74ab28530fb32": {"pac": None, "cell": cell("70279bf87312616ec7e74ab28530fb32", "cyberpi.cloud.time", (), 0)},
+"97adee4bd25bc6c77195451d5e7a42d6": {"pac": None, "cell": cell("97adee4bd25bc6c77195451d5e7a42d6", "cyberpi.cloud.listen", (), 0)},
+"10b07f3c97a2833abaeea5b42aa892b7": {"pac": None, "cell": cell("10b07f3c97a2833abaeea5b42aa892b7", "cyberpi.cloud.listen_result", (), 0)},
+"093cf48163eb9ae0997ea9f6a521c2f2": {"pac": None, "cell": cell("093cf48163eb9ae0997ea9f6a521c2f2", "cyberpi.cloud.tts", (), 0)},
+"716553fa3b4c7469133cf3d465536cd5": {"pac": None, "cell": cell("716553fa3b4c7469133cf3d465536cd5", "cyberpi.cloud.translate", (), 0)},
+"5535075a55d873b7450bad031ba3ba72": {"pac": None, "cell": cell("5535075a55d873b7450bad031ba3ba72", "cyberpi.timer.get", (), 0)},
+"e5359d1a429dbef33644fa7d5e450ab2": {"pac": None, "cell": cell("e5359d1a429dbef33644fa7d5e450ab2", "cyberpi.timer.reset", (), 0)},
+"973eab065d5f700522b11bff0540f19a": {"pac": None, "cell": cell("973eab065d5f700522b11bff0540f19a", "cyberpi.broadcast", (), 0)},
+"fe662895f3ea37bdb913466a5b6ba520": {"pac": None, "cell": cell("fe662895f3ea37bdb913466a5b6ba520", "cyberpi.broadcast_and_wait", (), 0)},
+"e0b9fb05284e48b4d7a4a97c25eca5de": {"pac": None, "cell": cell("e0b9fb05284e48b4d7a4a97c25eca5de", "cyberpi.wifi_broadcast.set", (), 0)},
+"f125d69e4401eb06e48ccd6bb3d6c895": {"pac": None, "cell": cell("f125d69e4401eb06e48ccd6bb3d6c895", "cyberpi.wifi_broadcast.get", (), 0)},
+"71de891af2a5dcbb9a8f4ed958060137": {"pac": None, "cell": cell("71de891af2a5dcbb9a8f4ed958060137", "cyberpi.upload_broadcast.set", (), 0)},
+"4b09d734021e25bcf990c7896f0ed816": {"pac": None, "cell": cell("4b09d734021e25bcf990c7896f0ed816", "cyberpi.upload_broadcast.get", (), 0)},
+"91f7a4c19cdcf0592e368049f5cb04ea": {"pac": None, "cell": cell("91f7a4c19cdcf0592e368049f5cb04ea", "cyberpi.cloud_broadcast.set", (), 0)},
+"d51ad9449c1a722b7df593a3ea603ee0": {"pac": None, "cell": cell("d51ad9449c1a722b7df593a3ea603ee0", "cyberpi.cloud_broadcast.get", (), 0)},
+"026f484ae8d9f995e168172504962a25": {"pac": None, "cell": cell("026f484ae8d9f995e168172504962a25", "cyberpi.stop_this", (), 0)},
+"1b05ec802d435cdc23aa16b23bbbc083": {"pac": None, "cell": cell("1b05ec802d435cdc23aa16b23bbbc083", "cyberpi.stop_other", (), 0)},
+"b74a8ad1b60ed48e72f89272dbfe394d": {"pac": None, "cell": cell("b74a8ad1b60ed48e72f89272dbfe394d", "cyberpi.stop_all", (), 0)},
+"7801409efa2cbc182d240320f247cf63": {"pac": None, "cell": cell("7801409efa2cbc182d240320f247cf63", "cyberpi.restart", (), 0)},
+"adc31e0c8c68dd42ab1dad5714a694e2": {"pac": None, "cell": cell("adc31e0c8c68dd42ab1dad5714a694e2", "cyberpi.event.start", (), 0)},
+"858fcd1af422110143a648486c603c09": {"pac": None, "cell": cell("858fcd1af422110143a648486c603c09", "cyberpi.event.is_shake", (), 0)},
+"e139a21c5116ec7210dbba7476adda02": {"pac": None, "cell": cell("e139a21c5116ec7210dbba7476adda02", "cyberpi.event.is_press", (), 0)},
+"ed60fa45fd0a9e980401c53e708ded47": {"pac": None, "cell": cell("ed60fa45fd0a9e980401c53e708ded47", "cyberpi.event.is_tiltup", (), 0)},
+"ba90bda5350a58507a3599c6b0bc8e70": {"pac": None, "cell": cell("ba90bda5350a58507a3599c6b0bc8e70", "cyberpi.event.is_tiltdown", (), 0)},
+"357740cb5c8e299bb56f973fddc041f0": {"pac": None, "cell": cell("357740cb5c8e299bb56f973fddc041f0", "cyberpi.event.is_tiltleft", (), 0)},
+"bc4c66390735049c9915db0ceb54dfd2": {"pac": None, "cell": cell("bc4c66390735049c9915db0ceb54dfd2", "cyberpi.event.is_tiltright", (), 0)},
+"3a522da87cc3efd0a39364f5bab8d86b": {"pac": None, "cell": cell("3a522da87cc3efd0a39364f5bab8d86b", "cyberpi.event.is_faceup", (), 0)},
+"c00c1e0ef54e7541ce8d12b330c3018d": {"pac": None, "cell": cell("c00c1e0ef54e7541ce8d12b330c3018d", "cyberpi.event.is_facedown", (), 0)},
+"68f2fb7b73828e5f82f60501b3aca418": {"pac": None, "cell": cell("68f2fb7b73828e5f82f60501b3aca418", "cyberpi.event.is_stand", (), 0)},
+"7a4a712ee73877568abfffab4c6a4472": {"pac": None, "cell": cell("7a4a712ee73877568abfffab4c6a4472", "cyberpi.event.is_handstand", (), 0)},
+"1a1d952a390a09afdab69ba96723a857": {"pac": None, "cell": cell("1a1d952a390a09afdab69ba96723a857", "cyberpi.event.is_waveup", (), 0)},
+"3f5f8108a707d50c9c595b1309913a35": {"pac": None, "cell": cell("3f5f8108a707d50c9c595b1309913a35", "cyberpi.event.is_wavedown", (), 0)},
+"b0ca4b07b50a6b349fa87608422df1de": {"pac": None, "cell": cell("b0ca4b07b50a6b349fa87608422df1de", "cyberpi.event.is_waveleft", (), 0)},
+"ceb37edb2c7c03556f529e45c46a6c79": {"pac": None, "cell": cell("ceb37edb2c7c03556f529e45c46a6c79", "cyberpi.event.is_waveright", (), 0)},
+"a522c41acb057a0eb3955717cfe03993": {"pac": None, "cell": cell("a522c41acb057a0eb3955717cfe03993", "cyberpi.event.is_clockwise", (), 0)},
+"b6cb8d513b6ac15230e2168434464c70": {"pac": None, "cell": cell("b6cb8d513b6ac15230e2168434464c70", "cyberpi.event.is_anticlockwise", (), 0)},
+"089f1a7ab3ce3d81be1bd167099877bc": {"pac": None, "cell": cell("089f1a7ab3ce3d81be1bd167099877bc", "cyberpi.event.receive", (), 0)},
+"92778f090ede75693ab02b31cd72f817": {"pac": None, "cell": cell("92778f090ede75693ab02b31cd72f817", "cyberpi.event.upload_broadcast", (), 0)},
+"6a8f93e101547247fb551785ed082bfe": {"pac": None, "cell": cell("6a8f93e101547247fb551785ed082bfe", "cyberpi.event.cloud_broadcast", (), 0)},
+"7027f95df86eacceb065ef8a0493625f": {"pac": None, "cell": cell("7027f95df86eacceb065ef8a0493625f", "cyberpi.event.wifi_broadcast", (), 0)},
+"894ec6719c94b519c18ef380a57d9d82": {"pac": None, "cell": cell("894ec6719c94b519c18ef380a57d9d82", "cyberpi.event.greater_than", (), 0)},
+"0f372307778f6e742402125956b6e7f4": {"pac": None, "cell": cell("0f372307778f6e742402125956b6e7f4", "cyberpi.event.samller_than", (), 0)},
+"be139ea20b00673e9e8dcb7bc1640df9": {"pac": None, "cell": cell("be139ea20b00673e9e8dcb7bc1640df9", "global_objects.speech_recognition_o.set_recognition_url", (), 0)},
+}
