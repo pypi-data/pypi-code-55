@@ -1,0 +1,4 @@
+
+
+class FixtureNotFound(Exception):
+    pass
