@@ -1,0 +1,1 @@
+from flaskinator.api_generator import FlaskApiGenerator
