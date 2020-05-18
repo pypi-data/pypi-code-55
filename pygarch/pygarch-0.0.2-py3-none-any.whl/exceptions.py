@@ -1,0 +1,3 @@
+
+class ArmaGarchException(Exception):
+    pass
