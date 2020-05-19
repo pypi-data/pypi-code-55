@@ -1,0 +1,52 @@
+"""RIOT application generator module."""
+
+import os
+import click
+
+from .common import load_and_check_params, check_overwrite, render_source
+
+
+DRIVER_PARAMS = {
+    "name": {"args": ["Driver name"], "kwargs": {}},
+    "displayed_name": {"args": ["Driver Doxygen group name"], "kwargs": {},},
+    "brief": {"args": ["Brief doxygen description"], "kwargs": {}},
+    "ingroup": {"args": ["Parent driver Doxygen group"], "kwargs": {}},
+}
+
+DRIVER_FILES = {
+    "driver.c": "{name}.c",
+    "Makefile": None,
+}
+
+DRIVER_INCLUDE_FILES = {"driver.h": "{name}.h"}
+
+DRIVER_INTERNAL_INCLUDE_FILES = {
+    "driver_constants.h": "{name}_constants.h",
+    "driver_params.h": "{name}_params.h",
+}
+
+
+def generate_driver(interactive, config, riotbase):
+    """Generate the code for a driver module."""
+    group = "driver"
+    params = load_and_check_params(
+        group, DRIVER_PARAMS, [], interactive, config, riotbase, "drivers",
+    )
+
+    drivers_dir = os.path.join(riotbase, "drivers")
+    drivers_include_dir = os.path.join(drivers_dir, "include")
+    output_dir = os.path.join(drivers_dir, params[group]["name"])
+    drivers_internal_include_dir = os.path.join(output_dir, "include")
+    check_overwrite(output_dir)
+    render_source(params, group, DRIVER_FILES, output_dir)
+    render_source(params, group, DRIVER_INCLUDE_FILES, drivers_include_dir)
+    render_source(
+        params, group, DRIVER_INTERNAL_INCLUDE_FILES, drivers_internal_include_dir
+    )
+
+    click.echo(
+        click.style(
+            f"Driver '{params[group]['name']}' generated in {output_dir} with success!",
+            bold=True,
+        )
+    )
