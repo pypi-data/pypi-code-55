@@ -1,0 +1,2 @@
+class SardineException(Exception):
+    pass
