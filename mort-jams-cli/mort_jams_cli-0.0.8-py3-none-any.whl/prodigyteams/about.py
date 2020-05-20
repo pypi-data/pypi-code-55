@@ -1,0 +1,7 @@
+__title__ = "Prodigy Teams CLI"
+__version__ = "0.0.8"
+__summary__ = "Prodigy Teams Command Line Interface"
+__uri__ = "https://prodi.gy"
+__author__ = "Explosion AI"
+__email__ = "contact@explosion.ai"
+__license__ = "All rights reserved"
