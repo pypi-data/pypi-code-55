@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup
+
+packages = \
+['xpattern']
+
+package_data = \
+{'': ['*']}
+
+install_requires = \
+['pampy>=0.3.0,<0.4.0']
+
+setup_kwargs = {
+    'name': 'xpattern',
+    'version': '0.2.0',
+    'description': 'Pattern Matching with XObject.',
+    'long_description': '# Xpattern: Pattern Matching with XObject.\n\n![GitHub](https://img.shields.io/github/license/zen-xu/xpattern)\n![Tests](https://github.com/zen-xu/xpattern/workflows/Tests/badge.svg?branch=master)\n[![PyPI version](https://badge.fury.io/py/xpattern.svg)](https://badge.fury.io/py/xpattern)\n\n> `xpattern` is inspired by [hask](https://github.com/billpmurphy/hask), [pipetools](https://github.com/0101/pipetools),\n[pampy](https://github.com/santinic/pampy/), and with `xpattern` your code will be more readable and graceful!\n\n\n## Let\'s play now\n> Each pattern matchline evaluated in the order they appear.\n\n```python\nfrom xpattern import caseof\nfrom xpattern import m\n\n\n~(caseof(v)\n    | m(pattern_1) >> action_1\n    | m(pattern_2) >> action_2\n)\n```\n\n`caseof` is lazy, so you need to add `~` operator to run it!\n\n### Write a Fibonacci\n\n> The operator `_` means "match everything"\n\n```python\nfrom xpattern import _\nfrom xpattern import caseof\nfrom xpattern import m\n\n\ndef fibonacci(n):\n    return ~(caseof(n)\n        | m(1) >> 1\n        | m(2) >> 1\n        | m(_) >> (lambda x: fibonacci(x - 1) + fibonacci(x - 2))\n    )\n```\n\n### Write a Lisp calculator\n```python\nfrom functools import reduce\n\nfrom xpattern import _\nfrom xpattern import REST\nfrom xpattern import caseof\nfrom xpattern import m\n\n\ndef lisp(exp):\n    return ~(caseof(exp)\n        | m(int)            >> (lambda x: x)\n        | m(callable)       >> (lambda x: x)\n        | m(callable, REST) >> (lambda f, rest: f(*map(lisp, rest)))\n        | m(tuple)          >> (lambda t: list(map(lisp, t)))\n    )\n\nplus = lambda a, b: a + b\nminus = lambda a, b: a - b\nlisp((plus, 1, 2))                  # => 3\nlisp((plus, 1 (minus, 4, 2)))       # => 3\nlisp((reduce, plus, (range, 10)))   # => 45\n```\n\n### You can match so many things!\n```python\n~(caseof(x)\n    | m(3)         >> "this matches the number 3"\n    | m(int)       >> "matches any integer"\n    | m(str, int)  >> (lambda a, b: "a tuple (a, b) you can use in a function")\n    | m(1, 2, _)   >> "any list of 3 elements that begins with [1, 2]"\n    | m({"x", _})  >> "any dict with a key \'x\' and any value associated"\n    | m(_)         >> "anything else"\n)\n```\n\n### Match [HEAD, TAIL]\n\n```python\nfrom xpattern import _\nfrom xpattern import HEAD\nfrom xpattern import TAIL\nfrom xpattern import caseof\nfrom xpattern import m\n\n\nx = [1, 2, 3]\n\n~(caseof(x)\n    | m(1, TAIL) >> (lambda t: t)             # => [2, 3]\n)\n\n~(caseof(x)\n    | m(HEAD, TAIL) >> (lambda h, t: (h, t))  # => [1, [2, 3]]\n)\n```\n\n### More pattern cases\n\n> Your can visit repo [pampy](https://github.com/santinic/pampy/) get more pattern cases, `xpattern` is *Syntactic Sugar* of `pampy`\n\n\n### Why name `Xpattern`, what\'s `X` mean?\n\n> `X` means `XObject` !!!\n>\n> `XObject` is a *Syntactic Sugar* of `lambda` function\n\n```python\nfrom xpattern import X\nfrom xpattern import caseof\nfrom xpattern import m\n\n\n~(caseof(1)\n    | m(1) >> X + 1       # => 2\n)\n\n~(caseof("apple")\n    | m(str) >> X.upper()  # => "APPLE"\n)\n\n~(caseof([1, 2, 3])\n    | m(1, 2, 3) >> X[2]   # => 3\n)\n\n~(caseof([1, 2, 3])\n    | m(1, 2, 3) >> X + [4, 5, 6]   # => [1, 2, 3, 4, 5, 6]\n)\n\n~(caseof(9)\n    | m(int) >> X + X ** (X << 2) % 2 / 3 - X  # => 0.333333333\n)\n\n~(caseof(1)\n    | m(int) >> X._in_([1, 2, 3])   # => True\n)\n\n~(caseof(lambda x, y: x + y)\n    | m(callable) >> X(1, 2)   # => 3\n)\n```\n\n| Operation             | Syntax                                     |\n| --------------------- | ------------------------------------------ |\n| Addition              | `X + 1`                                    |\n| Call                  | `X(a, b, c)`                               |\n| Concatenation         | `X + [1, 2, 3]`                            |\n| Containment Test      | `X._in_( [1, 2, 3] )`                    |\n| Contains              | `X._contains_(1)`                          |\n| Division              | `X / 2` or `X // 2`                        |\n| Bitwise And           | `X & 2`                                    |\n| Bitwise Exclusive Or  | `X ^ 2`                                    |\n| Bitwise Inversion     | `~X`                                       |\n| Bitwise Or            | `X \\| 2`                                    |\n| Exponentiation        | `X ** 2`                                   |\n| Identity              | `X._is_(2)`                                |\n| Indexing              | `X[k]`                                     |\n| Left Shift            | `X << 2`                                   |\n| Modulo                | `X % 2`                                    |\n| Multiplication        | `X * 2`                                    |\n| Matrix Multiplication | `X @ matrix`                               |\n| Negation (Arithmetic) | `-X`                                       |\n| Negation (Logical)    | `X._not()`                                 |\n| Positive              | `+X`                                       |\n| Right Shift           | `X >> 2`                                   |\n| Subtraction           | `X - 2`                                    |\n| Ordering              | `X < 2` or `X <= 2` or `X > 2` or `X >= 2` |\n| Equality              | `X == 2`                                   |\n| Difference            | `X != 2`                                   |\n',
+    'author': 'ZhengYu, Xu',
+    'author_email': 'zen-xu@outlook.com',
+    'maintainer': None,
+    'maintainer_email': None,
+    'url': 'https://github.com/zen-xu/xpattern',
+    'packages': packages,
+    'package_data': package_data,
+    'install_requires': install_requires,
+    'python_requires': '>=3.6.1,<4.0.0',
+}
+
+
+setup(**setup_kwargs)
