@@ -1,0 +1,1 @@
+from .thc import THC
