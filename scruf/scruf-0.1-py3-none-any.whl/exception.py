@@ -1,0 +1,2 @@
+class CramerError(Exception):
+    pass
