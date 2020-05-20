@@ -1,0 +1,76 @@
+""" Base models that allow persistency and indexing using the spintop.persistence modules.
+"""
+from datetime import datetime
+from typing import List, Dict, Optional, Any, NamedTuple
+from .base import BaseDataClass, model_property
+from .serialization import SerializedWrapper, TYPE_KEY
+from .queries import BaseQuery
+from .meta import FieldsOf
+
+from spintop.utils import utcnow_aware, is_aware
+
+class PersistenceIDRecord(BaseDataClass):
+    uuid: str
+    is_deleted: bool = False
+    tags: Dict[str, Optional[Any]] = dict
+    start_datetime: datetime = utcnow_aware
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.start_datetime and not is_aware(self.start_datetime):
+            raise ValueError('Please provide a tz-aware datetime.')
+
+
+class PersistenceRecord(BaseDataClass):
+    # Common to all
+    uuid: str = model_property(fget=lambda record: record.index.uuid)
+
+    # Same attributes, type should be changed by sub classes.
+    index: PersistenceIDRecord = None
+    data: BaseDataClass = None
+
+class SerializedPersistenceRecord(SerializedWrapper):
+    pass
+
+index_fields = PersistenceIDRecord.fields()
+
+class PersistenceRecordCollection(BaseDataClass):
+    records: List[PersistenceRecord] = list
+
+    def __init__(self, records=None):
+        records = list(records) if records else []
+        super().__init__(records=sorted(records, key=lambda record: index_fields.uuid.get_value(record.index)))
+    
+    @property
+    def collector(self):
+        return self.add_record
+
+    def add_record(self, record):
+        self.records.append(record)
+        
+    def apply(self, *fns):
+        for record in self.iter_records():
+            for fn in fns:
+                fn(record)
+                
+    def iter_records(self):
+        for record in self.records:
+            yield record
+                
+    def count_unique(self, key=lambda record: record.uuid):
+        occurances = set()
+        self.apply(lambda record: occurances.add(key(record)))
+        return len(occurances)
+            
+    def sort(self, key=lambda record: record.index.start_datetime):
+        self.records.sort(key=key)
+        
+    def __eq__(self, other):
+        return self.records == other.records
+
+index_fields = PersistenceIDRecord.fields()
+
+class Query(BaseQuery):
+    
+    def default_parts(self):
+        yield index_fields.is_deleted == False
