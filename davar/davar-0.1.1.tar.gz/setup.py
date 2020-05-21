@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+from setuptools import setup
+
+packages = \
+['davar']
+
+package_data = \
+{'': ['*']}
+
+install_requires = \
+['arpeggio>=1.9.2,<2.0.0', 'wikidata>=0.6.1,<0.7.0']
+
+setup_kwargs = {
+    'name': 'davar',
+    'version': '0.1.1',
+    'description': 'An experimental interpreted international auxiliary language.',
+    'long_description': '# davar\n An experimental interpreted international auxilliary language based on and powered by WikiData that aims to be extremely easy to translate into other languages.\n Currently, this package is a command line tool that describes a series of davar statements in a given language.\n\n## Purpose\n\nCurrently there is no reliable way to communicate cross-linguistically. Machine translation tries to solve this, but often runs into fundamental issues explained well [here](https://youtu.be/GAgp7nXdkLU). Rather than by solving that with a constructed auxilliary language like Esperanto or Volapük, *davar* aims to solve this by creating a notation for simple statements that is language-neutral, and that a computer can easily describe[[1]](#footnote1) in any language. This is achieved through the minimization of grammar and use of WikiData as a source of translation strings.\n\n## Syntax\n\nThe basic building blocks of davar are *Nodes* and *Rels*:\n\n***Nodes*** represent WikiData items and are written as WikiData item identifiers, in the form `Q#` , where `#` can be a number of any length. For example, [ `Q42` ](https://www.wikidata.org/wiki/Q42) is Douglas Adams.\n\n***Rels*** represent WikiData properties, and are written as WikiData property identifiers, in the form `P#` where `#` can be a number of any length. For example, [ `P828` ](https://www.wikidata.org/wiki/Property:P828) represents the property of causing something.\n\nThese can be combined to make *Statements*, of which there are currently three types:\n\n### Singleton Statement\n\nSingleton statements are the most basic type of statement:\n\n``` \n(Subject)\n```\n\nWhere `Subject` is either a Node or another Statement. This statement is not very meaningful, but means something along the lines of " `Subject` exists". For example, `(Q2013)` will be described in English as `WikiData.` , which can be understood as "consider WikiData" or "WikiData exists."\n\n### Edge\n\nEdges are statements that connect an `Subject` to an `Object` :\n\n``` \n(Subject Object)\n```\n\nWhere `Subject` and `Object` can either be a Node or a Statement. This statement encodes an unspecified relationship between the `Subject` and the `Object` . For example, `(Q2 Q5)` will be described in English as `Earth → human` which can be understood as "there is a relationship between Earth and humans" or "At Earth, there are humans".\n\n### Labeled Edge\n\nLabeled Edges are statements that connect an `Subject` to an `Object` in a way specified by a `Relationship` :\n\n``` \n(Relationship Subject Object)\n```\n\nWhere `Subject` and `Object` can either be a Node or a Statement and `Relationship` is a Rel. This statement encodes a specified relationship between the `Subject` and the `Object` . For example, `(P31 Q42 Q5)` will be described in English as `Douglas Adams → human (instance of)` , which can be understood as "Douglas Adams is a human."\n\n## Examples\n\nSome examples of more complex davar writing:\n\n### Self-Description\n\n#### davar:\n\n``` \n(Q28865 (P31 Q3236990 Q5482740))\n```\n\n#### English Description:\n\n> Python → \\[self → programmer (instance of)\\]\n\n#### Meaning:\n\n> When it comes to Python, I am a programmer.\n\nor\n\n> I am a python programmer.\n\n### Analogy[[2]](#footnote2)\n\n#### davar:\n\n``` \n(P460 (Q9128 Q204170) (Q11461 Q502261))\n```\n\n#### English Description:\n\n> \\[light → darkness] → \\[sound → silence] (said to be the same as).\n\n#### Meaning:\n\n> The relationship between light and darkness is the same as the relationship between sound and silence.\n\nor\n\n> light is to darkness as sound is to silence\n\n### Fiction:\n\n#### davar:\n\n``` \n(Q192630 (P69 Q3236990 Q8460327))\n(Q193168 (P108 Q3236990 Q2599656))\n```\n\n#### English Description:\n\n> past → \\[self → Unseen University (educated at)].\n\n> present → \\[self → Twoflower (employer)].\n\n#### Meaning:\n\n> In the past I went to Unseen University. Now I am employed by Twoflower.\n\n## Usage\n\n### Command Line Tool\n\nTo describe a string of davar in a language, use\n \n\n``` \n python -m davar DAVARTEXT -l LANG\n ```\n\nwhere LANG is a two character language code and DAVARTEXT is a string consisting of statements written in davar. This will cause errors if the `LANG` is in the wrong format or isn\'t available for the given WikiData item, which I will get around to handling later.\n\n### Package\n\nTo change a string of davar into a `Davar` object, use `d = Davar.from_davartext(davartext)` . Then, to describe the `Davar` object in a readable language, use `d.describe(lang)` where `lang` is a string containing a two character language code. \n\n## Footnotes\n\n<a name="footnote1">1</a>: We call it *describing* rather than *translating* because the output is not anything close to natural language. Rather, it is a mix of symbols and words that conveys the relationships described in the corresponding davar statements.\n\n<a name="footnote2">2</a>: You may notice that [ `P460` ](https://www.wikidata.org/wiki/Property:P460) does not represent being "the same as", and instead is labeled as "is said to be the same as". This is because there is no WikiData Property for being the same as something else, as it is far to vague to be useful in a database such as WikiData. This lack of subjective or abstract properties is a fundamental problem with using WikiData as a source, and I am exploring a number of solutions to it.\n',
+    'author': 'Impossibly New',
+    'author_email': 'newlyimpossible@gmail.com',
+    'maintainer': None,
+    'maintainer_email': None,
+    'url': 'https://github.com/impossiblynew/davar',
+    'packages': packages,
+    'package_data': package_data,
+    'install_requires': install_requires,
+    'python_requires': '>=3.7,<4.0',
+}
+
+
+setup(**setup_kwargs)
