@@ -1,0 +1,3 @@
+"""
+All configurations for pyunique
+"""
