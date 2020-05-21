@@ -1,0 +1,33 @@
+from collections import defaultdict
+
+class API_Error(Exception):
+    ''' Error thrown internally by the server API when a bad request is received '''
+    
+    def __init__(self, message, code):
+        super(Exception, self).__init__(message)
+        self.code = code
+
+
+class API_Client_Error(Exception):
+    ''' Error thrown by the API client when an error is received '''
+
+    CODES = defaultdict(lambda: 'Unknown', {
+        404: 'Resource Not Found',
+        403: 'Forbidden - Ensure proper credentials were supplied',
+        405: 'Not supported - The method is not supported',
+        500: 'Server Error - The endpoint encountered an error processing the request'
+    })
+    
+    def __init__(self, url:str, method:str, code:int):
+        super(Exception, self).__init__(f"{method} Request Error [{code}] | {self.CODES[code]} | {url}")
+        self.code = code
+        self.method = method
+
+    def __getstate__(self):
+        return (self.url, self.method, self.message)
+
+    def __setstate__(self, state):
+        API_Client_Error.__init__(self)
+        self.url = state[0]
+        self.method = state[1]
+        self.message = state[2]
