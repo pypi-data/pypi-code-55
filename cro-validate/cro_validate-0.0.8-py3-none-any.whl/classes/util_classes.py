@@ -1,0 +1,3 @@
+
+class DataDefinitionDefaultValue:
+	pass
