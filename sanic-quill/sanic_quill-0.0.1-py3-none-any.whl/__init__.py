@@ -1,0 +1,1 @@
+from sanic_quill.template import get_dependencies
