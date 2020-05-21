@@ -1,0 +1,1 @@
+default_app_config = 'covid19.apps.Covid19Config'
