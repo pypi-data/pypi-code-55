@@ -1,0 +1,8 @@
+"""
+igePAL
+"""
+
+from igePAL._igePAL import *
+
+PERMISSIONS_REQUEST_CAMERA = 1
+PERMISSIONS_REQUEST_PHOTO = 2
