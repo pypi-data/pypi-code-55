@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+import setuptools
+
+setuptools.setup(
+    name="tfgenson",
+    version="1.2.1a1",
+    description="TFGenSON is a powerful, user-friendly JSON Schema generator.",
+    keywords=['json', 'schema', 'json-schema', 'jsonschema', 'object',
+              'generate', 'generator', 'builder', 'merge',
+              'draft 7', 'validate', 'validation'],
+    url="https://github.com/davedotdev/tfgenson/",
+    download_url="https://github.com/davedotdev/TFGenSON/tarball/v1.2.1a1",
+    license="MIT",
+    author="Jon Wolverton, David Gee",
+    author_email="me@dave.dev",
+    packages=setuptools.find_namespace_packages(),
+    include_package_data=True,
+    zip_safe=True,
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Natural Language :: English",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Topic :: Software Development :: Code Generators",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Utilities",
+    ],
+    python_requires=">=3.6",
+)
