@@ -1,0 +1,29 @@
+class InvalidReplicationMethodException(Exception):
+    """Exception for errors related to replication methods"""
+
+    def __init__(self, replication_method, message=None):
+        msg = f"Invalid replication method {replication_method}!"
+
+        if message is not None:
+            msg = f'{msg} {message}'
+
+        super(InvalidReplicationMethodException, self).__init__(msg)
+
+
+class UnsupportedKeyTypeException(Exception):
+    """Raised if key type is unsupported"""
+
+class MongoAssertionException(Exception):
+    """Raised if Mongo exhibits incorrect behavior"""
+
+class MongoInvalidDateTimeException(Exception):
+    """Raised if we find an invalid date-time that we can't handle"""
+
+class SyncException(Exception):
+    """Raised if we find an invalid date-time that we can't handle"""
+
+class NoReadPrivilegeException(Exception):
+    """Raised if the DB user has no read privilege on the DB"""
+    def __init__(self, user, db_name):
+        msg = f"The user '{user}' has no read privilege on the database '{db_name}'!"
+        super(NoReadPrivilegeException, self).__init__(msg)
