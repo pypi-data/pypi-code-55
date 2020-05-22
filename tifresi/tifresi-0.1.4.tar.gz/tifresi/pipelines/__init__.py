@@ -1,0 +1,1 @@
+from tifresi.pipelines import LJspeech
