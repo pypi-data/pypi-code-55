@@ -1,0 +1,45 @@
+#
+#  Copyright © 2020 Ingram Micro Inc. All rights reserved.
+#
+
+from setuptools import find_packages, setup
+
+
+def read_file(name):
+    with open(name, 'r') as f:
+        content = f.read().rstrip('\n')
+    return content
+
+
+setup(
+    name='django-rql',
+    author='Ingram Micro',
+    url='https://connect.cloud.im',
+    description='Django RQL Filtering',
+#    long_description=read_file('README.md'),
+#    license=read_file('LICENSE'),
+    long_description_content_type='text/plain',
+    long_description='Just a simple Description Text',
+    license='APACHE-2.0',
+
+    python_requires='>=3.5',
+    zip_safe=True,
+    packages=find_packages(exclude=('tests',)),
+    include_package_data=True,
+    install_requires=read_file('requirements/dev.txt').splitlines(),
+    tests_require=read_file('requirements/test.txt').splitlines(),
+    setup_requires=['setuptools_scm', 'pytest-runner'],
+    #use_scm_version=True,
+    version='3.5.1',
+
+    keywords='django rql filter rest api',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Framework :: Django :: 1.11',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: Unix',
+        'Programming Language :: Python :: 3',
+        'Topic :: Text Processing :: Filters',
+    ]
+)
