@@ -1,0 +1,65 @@
+import pytest
+
+from examples.usage import (
+    static_string,
+    static_stringA,
+    static_stringB,
+    static_stringC,
+    static_stringD,
+    static_stringE,
+    variables,
+    variablesA,
+    variablesB,
+    variablesC,
+    variablesD,
+    expressions,
+    expressionsA,
+    expressionsB,
+    conditional,
+    looping,
+    components,
+    componentsA,
+    componentsB,
+    componentsC,
+    componentsD,
+    componentsE,
+    componentsF,
+    componentsG,
+    componentsH,
+    context,
+    contextA,
+)
+
+
+@pytest.mark.parametrize(
+    'target',
+    [
+        static_string,
+        static_stringA,
+        static_stringB,
+        static_stringC,
+        static_stringD,
+        static_stringE,
+        variables,
+        variablesA,
+        variablesB,
+        variablesC,
+        variablesD,
+        expressionsA,
+        expressionsB,
+        conditional,
+        looping,
+        components,
+        componentsA,
+        componentsB,
+        componentsC,
+        componentsE,
+        componentsF,
+        componentsG,
+        componentsH,
+        context,
+        contextA,
+    ]
+)
+def test_docs_usage(target):
+    assert target.result == target.expected
