@@ -1,0 +1,6 @@
+__title__ = "hpman"
+__version__ = "0.1.0"
+__author__ = "Xinyu Zhou"
+__author_email__ = "zxy@megvii.com"
+__url__ = "https://github.com/megvii-research/hpman"
+__description__ = "A hyperparameter manager for deep learning experiments."
