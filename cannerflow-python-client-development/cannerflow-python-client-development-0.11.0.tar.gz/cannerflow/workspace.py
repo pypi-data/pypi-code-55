@@ -1,0 +1,41 @@
+from cannerflow.request import Request
+from cannerflow.saved_query import SavedQuery
+from cannerflow.query import Query
+from cannerflow.file import File
+
+__all__ = ["Workspace"]
+
+class Workspace(object):
+    def __init__(
+        self,
+        endpoint,
+        headers,
+        workspace_id,
+        replaceLocalhostString
+    ):
+        self.endpoint = endpoint
+        self.headers = headers
+        self.workspace_id = workspace_id
+        request = Request(
+            headers=headers,
+            endpoint=endpoint
+        )
+        self.request = request
+        self.saved_query = SavedQuery(
+            request=request,
+            workspace_id=workspace_id
+        )
+        self.file = File(
+            request=request,
+            workspace_id=workspace_id,
+            replaceLocalhostString=replaceLocalhostString
+        )
+    def gen_query(self, sql, cache_refresh, cache_ttl, data_format):
+        return Query(
+            request=self.request,
+            workspace_id=self.workspace_id,
+            sql=sql,
+            cache_refresh=cache_refresh,
+            cache_ttl=cache_ttl,
+            data_format=data_format
+        )
