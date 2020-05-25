@@ -1,0 +1,2 @@
+from scenario_optimiser.linear_interpolator import interpolate_linear
+from scenario_optimiser.linear_interpolator import interpolate_scenarios

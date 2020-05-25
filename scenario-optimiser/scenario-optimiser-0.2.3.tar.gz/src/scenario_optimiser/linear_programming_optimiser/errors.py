@@ -1,0 +1,4 @@
+
+
+class ScenariosNotConcaveError(Exception):
+    pass
