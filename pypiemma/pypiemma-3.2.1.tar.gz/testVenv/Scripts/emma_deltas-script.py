@@ -1,0 +1,12 @@
+#!c:\0-repos\emma\testvenv\scripts\python.exe
+# EASY-INSTALL-ENTRY-SCRIPT: 'pypiemma==3.1.1','console_scripts','emma_deltas'
+__requires__ = 'pypiemma==3.1.1'
+import re
+import sys
+from pkg_resources import load_entry_point
+
+if __name__ == '__main__':
+    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
+    sys.exit(
+        load_entry_point('pypiemma==3.1.1', 'console_scripts', 'emma_deltas')()
+    )
