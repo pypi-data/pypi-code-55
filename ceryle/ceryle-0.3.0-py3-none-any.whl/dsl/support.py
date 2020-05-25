@@ -1,0 +1,171 @@
+import abc
+import logging
+import os
+import pathlib
+
+import ceryle.util as util
+from . import NoArgumentError, NoEnvironmentError
+
+logger = logging.getLogger(__name__)
+
+
+def joinpath(*path):
+    return str(pathlib.Path(*path))
+
+
+class ArgumentBase(abc.ABC):
+    def __init__(self, name, default=None, allow_empty=False, format=None):
+        self._name = util.assert_type(name, str)
+        self._default = util.assert_type(default, str, None)
+        self._allow_empty = util.assert_type(allow_empty, bool)
+        self._format = util.assert_type(format, str, None)
+        # self._right = None
+        # self._left = None
+        self._other = None
+        self._left = False
+        self._original = None
+
+    # @abc.abstractmethod
+    # def evaluate(self):
+    #     pass
+
+    def __add__(self, o):
+        return self._join(o)
+
+    def __radd__(self, o):
+        return self._join(o, left=True)
+
+    def _join(self, o, left=False):
+        util.assert_type(o, str, ArgumentBase)
+        ne = self._copy()
+        ne._original = self
+        ne._other = o
+        ne._left = left
+        # if left:
+        #     ne._left = o
+        # else:
+        #     ne._right = o
+        return ne
+
+    @abc.abstractmethod
+    def _copy(self):
+        pass
+
+    @abc.abstractmethod
+    def _eval_var(self):
+        pass
+
+    def evaluate(self):
+        logger.debug(f'evaluating {self}')
+        v = self._original.evaluate() if self._original else self._eval_var()
+        o = eval_arg(self._other) if self._other else ''
+        return f'{o}{v}' if self._left else f'{v}{o}'
+
+    # def _eval_all(self, v):
+    #     rvar = (self._right and eval_arg(self._right)) or ''
+    #     lvar = (self._left and eval_arg(self._left)) or ''
+    #     return f'{lvar}{v}{rvar}'
+
+    def _format_value(self, v):
+        return self._format and self._format % {self._name: v} or v
+
+    # @abc.abstractmethod
+    def __str__(self):
+        v = str(self._original) if self._original else self._str_format()
+        if self._other:
+            o = _str_format(self._other)
+            return f'{o} + {v}' if self._left else f'{v} + {o}'
+        return v
+
+    @abc.abstractmethod
+    def _str_format(self):
+        pass
+
+    def _str_args(self):
+        ss = [self._name]
+        if self._default is not None:
+            ss.append(f'default={self._default}')
+        if self._allow_empty:
+            ss.append('allow_empty')
+        if self._format:
+            ss.append(f'format=\'{self._format}\'')
+        return ss
+
+    def __repr__(self):
+        return str(self)
+
+
+def eval_arg(a, fail_on_unknown=True):
+    # if a is None:
+    #     return ''
+    if isinstance(a, str):
+        return a
+    if isinstance(a, ArgumentBase):
+        return a.evaluate()
+    if fail_on_unknown:
+        raise ValueError(f'not a str or ArgumentBase: {a}')
+    return a
+
+
+def _str_format(a):
+    util.assert_type(a, str, ArgumentBase)
+    if isinstance(a, str):
+        return f"'{a}'"
+    if isinstance(a, ArgumentBase):
+        return str(a)
+
+
+class Env(ArgumentBase):
+    def __init__(self, name, default=None, allow_empty=False, format=None):
+        super().__init__(name, default=default, allow_empty=allow_empty, format=format)
+
+    # def evaluate(self):
+    #     logger.debug(f'evaluating {self}')
+    def _eval_var(self):
+        v = os.environ.get(self._name) or self._default or ''
+        if not self._allow_empty and v == '':
+            raise NoEnvironmentError(f'environment variable {self._name} is not defined')
+        # return self._eval_all(self._format_value(v))
+        return self._format_value(v)
+
+    def _copy(self):
+        return Env(self._name, default=self._default, allow_empty=self._allow_empty, format=self._format)
+
+    # def __str__(self):
+    #     args = ', '.join(self._str_args())
+    #     return f'env({args})'
+
+    def _str_format(self):
+        args = ', '.join(self._str_args())
+        return f'env({args})'
+
+
+class Arg(ArgumentBase):
+    def __init__(self, name, args, default=None, allow_empty=False, format=None):
+        super().__init__(name, default=default, allow_empty=allow_empty, format=format)
+        self._args = dict(**args)
+        for k, v in self._args.items():
+            util.assert_type(k, str)
+            util.assert_type(v, str)
+
+    # def evaluate(self):
+    #     logger.debug(f'evaluating {self}')
+    #     super().evaluate()
+
+    def _eval_var(self):
+        v = self._args.get(self._name) or os.environ.get(self._name) or self._default or ''
+        if not self._allow_empty and v == '':
+            raise NoArgumentError(f'argument {self._name} is not defined')
+        # return self._eval_all(self._format_value(v))
+        return self._format_value(v)
+
+    def _copy(self):
+        return Arg(self._name, self._args, default=self._default, allow_empty=self._allow_empty, format=self._format)
+
+    # def __str__(self):
+    #     args = ', '.join(self._str_args())
+    #     return f'arg({args})'
+
+    def _str_format(self):
+        args = ', '.join(self._str_args())
+        return f'arg({args})'
