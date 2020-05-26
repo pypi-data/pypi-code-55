@@ -1,0 +1,39 @@
+# Based on wxPython
+# Copyright: (c) 2018 by Total Control Software
+# License:   wxWindows License
+
+
+def dummy_function(*args, **kwargs):
+	return 0
+
+
+EVT_MEDIA_FINISHED = object
+EVT_MEDIA_LOADED = object
+EVT_MEDIA_PAUSE = object
+EVT_MEDIA_PLAY = object
+EVT_MEDIA_STATECHANGED = object
+EVT_MEDIA_STOP = object
+MEDIABACKEND_DIRECTSHOW = ''
+MEDIABACKEND_GSTREAMER = ''
+MEDIABACKEND_MCI = ''
+MEDIABACKEND_QUICKTIME = ''
+MEDIABACKEND_REALPLAYER = ''
+MEDIABACKEND_WMP10 = ''
+MEDIACTRLPLAYERCONTROLS_DEFAULT = object
+MEDIACTRLPLAYERCONTROLS_NONE = object
+MEDIACTRLPLAYERCONTROLS_STEP = object
+MEDIACTRLPLAYERCONTROLS_VOLUME = object
+MEDIASTATE_PAUSED = object
+MEDIASTATE_PLAYING = object
+MEDIASTATE_STOPPED = object
+MediaCtrl = object
+MediaCtrlPlayerControls = object
+MediaEvent = object
+MediaState = object
+USE_MEDIACTRL = 0
+wxEVT_MEDIA_FINISHED = 0
+wxEVT_MEDIA_LOADED = 0
+wxEVT_MEDIA_PAUSE = 0
+wxEVT_MEDIA_PLAY = 0
+wxEVT_MEDIA_STATECHANGED = 0
+wxEVT_MEDIA_STOP = 0
