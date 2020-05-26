@@ -1,0 +1,3 @@
+
+class PlayvoxException(Exception):
+    pass
