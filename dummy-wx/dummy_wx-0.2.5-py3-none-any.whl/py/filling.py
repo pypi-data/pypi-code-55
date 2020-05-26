@@ -1,0 +1,17 @@
+# Based on wxPython
+# Copyright: (c) 2018 by Total Control Software
+# License:   wxWindows License
+
+
+def dummy_function(*args, **kwargs):
+	return 0
+
+
+App = object
+COMMONTYPES = []
+DOCTYPES = tuple()
+Filling = object
+FillingFrame = object
+FillingText = object
+FillingTree = object
+SIMPLETYPES = []
