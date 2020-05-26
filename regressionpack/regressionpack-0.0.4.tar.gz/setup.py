@@ -1,0 +1,32 @@
+from setuptools import setup, find_packages
+
+def readme():
+    with open('README.md') as f:
+        return f.read()
+
+setup(
+    name="regressionpack",
+    version="0.0.4",
+    author="FusedSilica",
+    author_email="caronmartin3@gmail.com",
+    description="Library for making regression with errorbars a walk in the park. ",
+    long_description=readme(),
+    classifiers=[
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3.7",
+        "Topic :: Scientific/Engineering :: Mathematics",
+    ],
+    #url="https://bitbucket.org/FusedSilica/regressionpack/",
+    packages=find_packages(),
+    python_requires=">=3.7",
+    install_requires = [
+        "numpy>=1.18",
+        "scipy>=1.4",
+        ],
+    include_package_data=True,
+    zip_safe=False,
+)
