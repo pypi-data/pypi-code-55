@@ -1,0 +1,52 @@
+from setuptools import Extension, setup, find_packages
+import numpy
+import os
+import warnings
+
+with open('README.md') as f:
+    README = f.read()
+
+# settings
+project_var_name = "ddop"
+
+# data
+here = os.path.dirname(__file__)
+packages = find_packages()
+package_dir = {k: os.path.join(here, k.replace(".", "/")) for k in packages}
+package_data = {
+    project_var_name + ".utils": ["*.pyx"],
+}
+
+ext_modules = [
+    Extension("criterion",
+              ['ddop/utils/criterion.pyx'],
+              include_dirs=[numpy.get_include()])]
+
+# cythonize
+try:
+    from Cython.Build import cythonize
+    ext_modules = cythonize(ext_modules)
+except ImportError:
+    # Cython is not installed.
+    warnings.warn(
+        "cython is not installed. Only pure python subpckages will be available.")
+    ext_modules = None
+
+setup(
+    name='ddop',
+    version='v0.2.9',
+    url='',
+    license='MIT',
+    author='Andreas Philippi',
+    author_email='',
+    description='Package for data-driven operations management',
+    long_description=README,
+    include_package_data=True,
+    packages=find_packages(),
+    python_requires=">=3.6",
+    setup_requires=['Cython'],
+    install_requires=['Cython','scikit-learn>=0.23.0', 'pandas', 'PuLP==2.0',
+                      'tensorflow==2.1.0', 'Keras==2.3.1',
+                      'numpy==1.18.2', 'scipy==1.4.1'],
+    ext_modules=ext_modules
+)
