@@ -1,0 +1,3 @@
+
+class RelativeSeriality():
+    pass
