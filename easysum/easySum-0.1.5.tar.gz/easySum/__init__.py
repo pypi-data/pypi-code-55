@@ -1,0 +1,1 @@
+from easySum.summarizer import summarize_sentences
