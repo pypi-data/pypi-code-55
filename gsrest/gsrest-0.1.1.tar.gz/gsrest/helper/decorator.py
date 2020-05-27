@@ -1,0 +1,38 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2020 Instituto Tecnológico de Canarias, S.A.
+#
+# This file is part of GsRest
+# (see https://github.com/esuarezsantana/gsrest).
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+"""Helper decorators for the gsrest package.
+"""
+
+
+def singleton(cls):
+    """Class singleton decorator.
+
+    See https://stackoverflow.com/a/2752280/86783
+
+    """
+    instances = {}
+
+    def getinstance():
+        if cls not in instances:
+            instances[cls] = cls()
+        return instances[cls]
+
+    return getinstance
