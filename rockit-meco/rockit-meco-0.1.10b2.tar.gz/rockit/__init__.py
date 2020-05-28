@@ -1,0 +1,43 @@
+#
+#     This file is part of rockit.
+#
+#     rockit -- Rapid Optimal Control Kit
+#     Copyright (C) 2019 MECO, KU Leuven. All rights reserved.
+#
+#     Rockit is free software; you can redistribute it and/or
+#     modify it under the terms of the GNU Lesser General Public
+#     License as published by the Free Software Foundation; either
+#     version 3 of the License, or (at your option) any later version.
+#
+#     Rockit is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#     Lesser General Public License for more details.
+#
+#     You should have received a copy of the GNU Lesser General Public
+#     License along with CasADi; if not, write to the Free Software
+#     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+#
+import os
+
+from .multiple_shooting import MultipleShooting
+from .ocp import Ocp
+from .stage import Stage
+from .direct_method import DirectMethod
+from .direct_collocation import DirectCollocation
+from .single_shooting import SingleShooting
+from .freetime import FreeTime
+from .sampling_method import FreeGrid, UniformGrid, GeometricGrid
+from .solution import OcpSolution
+
+try:
+  example_dir = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),"examples"))
+except:
+  example_dir = "not_found"
+
+try:
+  matlab_path = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)),"matlab"))
+except:
+  matlab_path = "not_found"
+
