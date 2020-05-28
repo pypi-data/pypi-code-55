@@ -1,0 +1,141 @@
+## __main__.py - Tommy Dougiamas
+"""
+This file interprets all command line arguments.
+It passes off the actual processing to other functions.
+"""
+
+# Local imports
+from . import generate  # width/height --> matrix
+from . import create_output_image  # matrix --> image
+from . import strings  # Static strings
+from . import g  # global variables
+
+# Stdlib imports
+import sys
+import os
+from pathlib import Path  # Used to fix incompatibilities between windows and unix-based file paths "/" vs "\\"
+
+
+def cmd_error(message=""):  # Display error message and exit the program with exit code 1
+	if message:
+		print(f"ERROR: {message}\n")
+
+	print("See --help for more info.")
+	exit(1)
+
+
+def cmd_info(mode):  # Display information and exit the program with exit code 0
+	if mode == "help":
+		print(strings.help_message)
+
+	elif mode == "version":
+		print(strings.version)
+
+	elif mode == "maze_rules":
+		print(strings.maze_rules)
+
+	else:
+		raise ValueError(
+			# If the mode was not valid warn, so then it doesn't get into prod
+			f"DEV_ERROR: Option '{mode}' is not valid for cmd_info ")
+
+	exit(0)
+
+
+def main():
+	output_path = ""  # The path for the picture to be outputted to
+	width: int = 0
+	height: int = 0
+
+	option_no_noise = False
+	option_more_paths = False
+	option_more_walls = False
+
+	cmd_args = sys.argv[1:]  # List storing all command line arguments passed to the program
+	if len(cmd_args) == 0:  # if no arguments were given
+		cmd_error("No arguments provided.")
+
+	if "--help" in cmd_args or "-h" in cmd_args:
+		cmd_info("help")
+
+	elif "-v" in cmd_args or "--version" in cmd_args:
+		cmd_info("version")
+
+	skip_next_arg = False  # Boolean indicating whether the current iteration should be skipped
+
+	# Loop handling arguments that have params like "-i" and "-o"
+	for index, arg in enumerate(cmd_args):
+		if skip_next_arg:
+			skip_next_arg = False
+			continue
+
+		try:
+			if arg == "-o" or arg == "--output":
+				output_path = cmd_args[index + 1]  # the argument after '-o' is the output path
+				skip_next_arg = True
+
+			elif arg == "-x" or arg == "--width":
+				width = int(cmd_args[index + 1])
+				skip_next_arg = True
+
+			elif arg == "-y" or arg == "--height":
+				height = int(cmd_args[index + 1])
+				skip_next_arg = True
+
+			elif arg == "-xy" or arg == "--xy":
+				height = int(cmd_args[index + 1])
+				width = int(cmd_args[index + 1])
+				skip_next_arg = True
+
+			elif arg == "--no-noise":
+				option_no_noise = True
+
+			elif arg == "--more-walls":
+				option_more_walls = True
+
+			elif arg == "--more-paths":
+				option_more_paths = True
+
+			else:
+				cmd_error(f"Option '{arg}' not recognised.")
+
+		except IndexError:  # If no parameter is passed when an arg expects it
+			cmd_error(f"Option '{arg}' requires an parameter.")
+
+	output_dir = str(Path.cwd())
+	output_name = "maze"
+	if output_path:
+		if os.path.isdir(output_path):
+			output_dir = output_path
+		else:
+			path_lst = output_path.split("/")
+			if path_lst[-1] == "":
+				cmd_error("Invalid directory name.")
+			else:
+				output_name = path_lst[-1]
+				output_dir = output_path[0:-len(output_name)]
+				if ".jpg" in output_name:
+					output_name = output_name.split(".jpg")[0]
+				elif ".jpeg" in output_name:
+					output_name = output_name.split(".jpeg")[0]
+
+
+	if not width or not height:
+		cmd_error(f"Please supply a height and a width! Use -x and -y")
+
+	if width < 20 or height < 20:
+		cmd_error("Both width and height must be at least 20.")
+
+	noise_setting = "default"
+
+	if option_no_noise:
+		noise_setting = "none"
+	elif option_more_paths:
+		noise_setting = "more"
+	elif option_more_walls:
+		noise_setting = "less"
+
+	generate.generate(width, height, noise_setting)
+
+	create_output_image.create(g.maze, output_dir, output_name)
+	exit(0)
