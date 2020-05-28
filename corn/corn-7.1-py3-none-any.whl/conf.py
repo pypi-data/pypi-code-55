@@ -1,0 +1,1 @@
+DYNE = {"corn": ["corn"]}
