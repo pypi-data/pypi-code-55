@@ -1,0 +1,7 @@
+__title__ = "pyparcel"
+__description__ = "The simple and secure way to convert objects to bytestrings."
+__url__ = "https://najaco.github.io/pyparcel/"
+__version__ = "0.9.0"
+__author__ = "Nathan Cohen"
+__author_email__ = "ncohen4299@gmail.com"
+__license__ = "MIT License"
