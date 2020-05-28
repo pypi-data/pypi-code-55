@@ -1,0 +1,28 @@
+"""Main module."""
+
+#  Copyright (c) 2020 Netflix.
+#  All rights reserved.
+from netflix_update_notify import UpdateNotifier
+
+from . import __version__
+from .kaiju_mqtt_py import get_custom_request_responder
+from .kaiju_mqtt_py import get_error_handler_for_client_callback
+from .kaiju_mqtt_py import KaijuMqtt
+from .kaiju_mqtt_py import MqttPacket
+from .kaiju_mqtt_py import MqttStatusException
+from .kaiju_mqtt_py import on_connect
+from .kaiju_mqtt_py import on_disconnect
+from .kaiju_mqtt_py import on_message
+
+__all__ = [
+    KaijuMqtt,
+    get_custom_request_responder,
+    get_error_handler_for_client_callback,
+    MqttPacket,
+    MqttStatusException,
+    on_connect,
+    on_disconnect,
+    on_message,
+]
+
+UpdateNotifier.notify_of_updates("kaiju-mqtt-py", __version__.__version__)
