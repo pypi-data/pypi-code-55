@@ -1,0 +1,4 @@
+import sys
+import warnings
+
+from facile_trigger_helper_easy.facile_trigger_helper_easy import run_cli
