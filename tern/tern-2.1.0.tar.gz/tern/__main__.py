@@ -1,0 +1,205 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2017-2020 VMware, Inc. All Rights Reserved.
+# SPDX-License-Identifier: BSD-2-Clause
+
+"""
+Tern executable
+"""
+
+
+import argparse
+import logging
+import os
+import sys
+
+from tern.analyze.docker import run
+from tern.utils import cache
+from tern.utils import constants
+from tern.utils import general
+from tern.utils import rootfs
+from tern.report import errors
+
+
+# global logger
+from tern.utils.general import check_image_string
+
+logger = logging.getLogger(constants.logger_name)
+logger.setLevel(logging.DEBUG)
+
+# console stream handler
+console = logging.StreamHandler()
+console.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter(
+    '%(asctime)s - %(levelname)s - %(module)s - %(message)s')
+
+log_handler = logging.FileHandler(constants.logfile, mode='w')
+log_handler.setLevel(logging.DEBUG)
+log_handler.setFormatter(formatter)
+
+console.setFormatter(formatter)
+
+logger.addHandler(log_handler)
+
+
+def check_file_existence(path):
+    if not os.path.isfile(path):
+        msg = "{}: does not exist".format(path)
+        raise argparse.ArgumentTypeError(msg)
+    return path
+
+
+def get_version():
+    '''Return the version string for the --version command line option'''
+    ver_type, commit_or_ver = general.get_git_rev_or_version()
+    message = ''
+    if ver_type == "package":
+        message = "Tern version {}".format(commit_or_ver)
+    else:
+        message = "Tern at commit {}".format(commit_or_ver)
+    return message
+
+
+def create_top_dir(working_dir=None):
+    '''Create the top level working directory'''
+    top_dir = general.get_top_dir(working_dir)
+    if not os.path.isdir(top_dir):
+        os.makedirs(top_dir)
+
+
+def do_main(args):
+    '''Execute according to subcommands'''
+    # set bind mount location if working in a container
+    rootfs.set_mount_dir(args.bind_mount, args.working_dir)
+    # create working directory
+    create_top_dir(args.working_dir)
+    if not args.quiet:
+        # set up console logs
+        global logger
+        global console
+        logger.addHandler(console)
+    logger.debug('Starting...')
+    if args.clear_cache:
+        logger.debug('Clearing cache...')
+        cache.clear()
+    if hasattr(args, 'name') and (args.name == 'report' or
+                                  args.name == 'lock'):
+        if args.name == 'lock':
+            run.execute_dockerfile(args)
+        elif args.dockerfile:
+            run.execute_dockerfile(args)
+        elif args.docker_image:
+            # Check if the image is of image:tag
+            # or image@digest_type:digest format
+            if not check_image_string(args.docker_image):
+                sys.stderr.write('Error running Tern\n'
+                                 'Please provide docker image '
+                                 'string in image:tag or '
+                                 'image@digest_type:digest format\n')
+                sys.exit(1)
+            if general.check_tar(args.docker_image):
+                logger.error("%s", errors.incorrect_raw_option)
+            else:
+                run.execute_docker_image(args)
+                logger.debug('Report completed.')
+        if args.name == 'report':
+            if args.raw_image:
+                if not general.check_tar(args.raw_image):
+                    logger.error("%s", errors.invalid_raw_image.format(
+                        image=args.raw_image))
+                else:
+                    run.execute_docker_image(args)
+                    logger.debug('Report completed.')
+    logger.debug('Finished')
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter,
+        prog='Tern',
+        description='''
+    Tern is a container image component curation tool. Tern retrieves
+    information about packages that are installed in a container image.
+    Learn more at https://github.com/tern-tools/tern''')
+    parser.add_argument('-q', '--quiet', action='store_true',
+                        help="Silences the output to the terminal;"
+                        "Useful when logging behaviour unnecessary")
+    parser.add_argument('-c', '--clear-cache', action='store_true',
+                        help="Clear the cache before running")
+    parser.add_argument('-k', '--keep-wd', action='store_true',
+                        help="Keep the working directory after execution."
+                        " Useful when debugging container images")
+    parser.add_argument('-b', '--bind-mount', metavar='BIND_DIR',
+                        help="Absolute path to bind mount target. Needed"
+                        " when running from within a container.")
+    parser.add_argument('-r', '--redo', action='store_true',
+                        help="Repopulate the cache for found layers")
+    parser.add_argument('-wd', '--working-dir', metavar='PATH',
+                        help="Change default working directory to specified"
+                        "absolute path.")
+    # sys.version gives more information than we care to print
+    py_ver = sys.version.replace('\n', '').split('[')[0]
+    parser.add_argument('-v', '--version', action='version',
+                        version="{ver_str}\n   python version = {py_v}".format(
+                            ver_str=get_version(), py_v=py_ver))
+    subparsers = parser.add_subparsers(help='Subcommands')
+    # subparser for report
+    parser_report = subparsers.add_parser('report',
+                                          help="Create a BoM report."
+                                          " Run 'tern report -h' for"
+                                          " report format options.")
+    parser_report.add_argument('-d', '--dockerfile', type=check_file_existence,
+                               help="Dockerfile used to build the Docker"
+                               " image")
+    parser_report.add_argument('-i', '--docker-image',
+                               help="Docker image that exists locally -"
+                               " image:tag"
+                               " The option can be used to pull docker"
+                               " images by digest as well -"
+                               " <repo>@<digest-type>:<digest>")
+    parser_report.add_argument('-w', '--raw-image', metavar='FILE',
+                               help="Raw container image that exists locally "
+                               "in the form of a tar archive.")
+    parser_report.add_argument('-x', '--extend', metavar='EXTENSION',
+                               help="Use an extension to analyze a container "
+                               "image. Available extensions: cve-bin-tool")
+    parser_report.add_argument('-f', '--report-format',
+                               metavar='REPORT_FORMAT',
+                               help="Format the report using one of the "
+                               "available formats: "
+                               "spdxtagvalue, json, yaml")
+    parser_report.add_argument('-o', '--output-file', default=None,
+                               metavar='FILE',
+                               help="Write the report to a file. "
+                               "If no file is given the default file in "
+                               "utils/constants.py will be used")
+    parser_report.set_defaults(name='report')
+    # subparser for dockerfile lock
+    parser_lock = subparsers.add_parser('lock',
+                                        help="Create an annotated Dockerfile"
+                                        " that will pin the information "
+                                        "it finds. Use this option to help "
+                                        "achieve a more repeatable "
+                                        "container image build.")
+    parser_lock.add_argument('lock', metavar='DOCKERFILE',
+                             help="Dockerfile that you want to lock.")
+    parser_lock.add_argument('-o', '--output-file', default=None,
+                             metavar='FILE', help="Write the "
+                             "annotated Dockerfile to a file. If no report "
+                             "is given, a new file, Dockerfile.new, will "
+                             "be created in the current directory.")
+    parser_lock.set_defaults(name='lock')
+    args = parser.parse_args()
+
+    # execute
+    if sys.version_info < (3, 0):
+        sys.stderr.write("Error running Tern. Please check that python3 "
+                         "is configured as default.\n")
+    else:
+        do_main(args)
+
+
+if __name__ == "__main__":
+    main()
