@@ -1,0 +1,2 @@
+class PomError(Exception):
+    """PomError"""
