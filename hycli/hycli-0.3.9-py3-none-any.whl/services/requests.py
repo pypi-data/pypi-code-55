@@ -1,0 +1,67 @@
+import requests
+
+from ..commons.error_handling import handle_status_code
+
+
+@handle_status_code
+def request_token(token_endpoint, username, password):
+    """ Request invoice extractor token """
+    response = requests.post(
+        url=token_endpoint,
+        data={
+            "username": username,
+            "password": password,
+            "grant_type": "password",
+            "client_id": "extractionapi",
+        },
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    response.raise_for_status()
+    return response.json()["access_token"]
+
+
+@handle_status_code
+def extract_invoice(
+    file,
+    extractor_endpoint,
+    content_type,
+    token=None,
+    params=("rasterization: true", "probabilities: true"),
+):
+    """ Request invoice extractor """
+    response = requests.post(
+        url=extractor_endpoint,
+        data=file,
+        params={x.split(":")[0].strip(): x.split(":")[1].strip() for x in params}
+        if params
+        else params,
+        timeout=1800,
+        headers={"Content-type": content_type, "Authorization": f"Bearer {token}"},
+    )
+
+    response.raise_for_status()
+    return response.json()
+
+
+@handle_status_code
+def validation(extracted_invoice, endpoint_url):
+    """ Request validaton service """
+    response = requests.post(
+        url=endpoint_url,
+        json=extracted_invoice,
+        headers={"Content-type": "application/json"},
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+@handle_status_code
+def validate_vat(extracted_invoice, endpoint_url):
+    """ Request vat validator """
+    response = requests.post(
+        url=endpoint_url,
+        json=extracted_invoice,
+        headers={"Content-type": "application/json"},
+    )
+    response.raise_for_status()
+    return response.json()
