@@ -1,0 +1,46 @@
+# -*- coding: utf-8 -*-
+# Authored by: Josh (joshzda@gmail.com)
+from setuptools import setup
+
+setup(
+    name='jdu',
+    version='0.0.1b0',
+    packages=['jdu',
+              'jdu.api',
+              'jdu.api.open',
+              'jdu.api.web',
+              'jdu.client',
+              'jdu.core'
+              ],
+    url='',
+    license='',
+    author='joshzda',
+    author_email='joshzda@gmail.com',
+    description='JingDong Union SDK',
+    setup_requires=['wheel'],
+    install_requires=[
+        "appnope==0.1.0",
+        "arrow==0.15.6",
+        "backcall==0.1.0",
+        "certifi==2020.4.5.1",
+        "chardet==3.0.4",
+        "decorator==4.4.2",
+        "idna==2.9",
+        "ipython==7.14.0",
+        "ipython-genutils==0.2.0",
+        "jedi==0.17.0",
+        "parso==0.7.0",
+        "pexpect==4.8.0",
+        "pickleshare==0.7.5",
+        "prompt-toolkit==3.0.5",
+        "ptyprocess==0.6.0",
+        "Pygments==2.6.1",
+        "python-dateutil==2.8.1",
+        "requests==2.23.0",
+        "six==1.14.0",
+        "traitlets==4.3.3",
+        "urllib3==1.25.9",
+        "wcwidth==0.1.9",
+    ],
+    python_requires='>=3.6',
+)
