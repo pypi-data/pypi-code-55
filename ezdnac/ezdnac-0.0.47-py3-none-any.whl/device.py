@@ -1,0 +1,348 @@
+from ezdnac.excepts import *
+import ezdnac.dnac
+import requests
+import json
+import re
+import os
+
+
+#When initialized, populate device parameters:
+#Retreive switchId based on serialnumber
+class Device():
+	def __init__(self, dnac, **kwargs):
+		self.dnac = dnac
+		self.id =  None
+		self.hostname = None
+		self.serialNumber = None
+		self.state = None
+		
+		if 'id' in kwargs:
+			self.id = kwargs['id']
+			self.initMethod = 'id'
+		elif 'sn' in kwargs:
+			self.serialNumber = kwargs['sn']
+			self.initMethod = 'sn'
+		elif 'hostname' in kwargs:
+			self.hostname = kwargs['hostname']
+			self.initMethod = 'hostname'
+
+		if self.id is None and self.serialNumber is None and self.hostname is None:
+			raise ezDNACError('No device argment found. Enter hostname, id or sn')
+
+		#if init method is id, the device must be in inventory. Populate all attributes:		
+		if self.initMethod == 'id':
+			try:
+				self.state 			= "Provisioned"
+				INVdevices 			= self.dnac.getInventoryDevies(id=self.id)
+			except:
+				raise ezDNACError('device not found by id')
+		
+		elif self.initMethod == 'hostname':
+			try:
+				INVdevices 			= self.dnac.getInventoryDevies(hostname=self.hostname)
+			except:
+				raise ezDNACError('device not found by hostname')
+
+
+		#if method is sn, the device can be either in inventory or pnp, have to try both
+		elif self.initMethod == 'sn':
+			INVdevices 			= self.dnac.getInventoryDevies(sn=self.serialNumber)
+
+		self.state 			= "Provisioned"
+		self.serialNumber 	= INVdevices['serialNumber']
+		self.ip 			= INVdevices['managementIpAddress']
+		self.hostname		= INVdevices['hostname']
+		self.platform		= INVdevices['platformId']
+		self.softwareVersion= INVdevices['softwareVersion']
+		self.softwareType	= INVdevices['softwareType']
+		
+
+		if self.state != "Provisioned" and self.initMethod == 'sn':
+			try:
+			#Otherwise try populate attributes via pnp:
+				PNPdevices 			= self.dnac.getPnpDevices(sn=self.serialNumber)
+				self.id 			= PNPdevices['id']
+				self.state  		= PNPdevices['deviceInfo']['state']
+				self.hostname		= PNPdevices['deviceInfo']['name']
+				self.platform		= PNPdevices['deviceInfo']['pid']
+				self.softwareVersion= PNPdevices['deviceInfo']['imageVersion']
+				self.softwareType	= PNPdevices['deviceInfo']['agentType'] 
+			except:
+				raise ezDNACError('device with serialNumber' + str(self.serialNumber) +' not found')
+			try:
+				httpHeaders = PNPdevices['deviceInfo']['httpHeaders']
+				for header in httpHeaders:
+					if header['key'] == 'clientAddress':
+						self.ip = header['value']
+			except:
+				pass
+
+
+	def getTopology(self):
+		ret = []
+		url = "https://" + self.dnac.ip + ":" + self.dnac.port + baseurl + "topology/physical-topology/"
+		payload = {}
+		headers = {
+		'x-auth-token': self.authToken
+		}
+		
+		response = requests.request("GET", url, headers=headers, data = payload, verify=verifySSL, timeout=timeout)
+		data = json.loads(response.text)
+		connections = {}
+		links = []
+		for link in data['response']['links']:
+		
+			try:
+				connections['sourcenode'] = link['source']
+				connections['remotenode'] = link['target']
+				connections['sourceif'] = link['startPortName']
+				connections['remoteif'] = link['endPortName']
+				links.append(dict(connections))
+			except:
+				pass
+		ret = links
+		return ret
+
+
+	def getConnections(self):
+		ret = []
+		url = "https://" + self.dnac.ip + ":" + self.dnac.port + baseurl + "topology/physical-topology/"
+		payload = {}
+		headers = {
+		'x-auth-token': self.authToken
+		}
+		response = requests.request("GET", url, headers=headers, data = payload, verify=verifySSL)
+		data = json.loads(response.text)
+		connections = {}
+		links = []
+		for link in data['response']['links']:
+			try:
+				if link['source'] == self.id:
+					print ("source")
+					connections['remotenode'] = link['target']
+					connections['remoteif'] = link['endPortName']
+					connections['localif'] = link['startPortName']
+					links.append(dict(connections))
+				elif link['target'] == self.id:
+					print ("arget")
+					connections['remotenode'] = link['source']
+					connections['remoteif'] = link['startPortName']
+					connections['localif'] = link['endPortName']
+					links.append(dict(connections))
+			except:
+				pass
+		ret = links
+		return ret
+
+
+	def deployTemplate(self, templateId, templateParams):
+			"""
+			Inputs:
+			templateId (String)
+			templateParams (dict) 
+
+			Returns data (dict):
+			{
+			'deploymetId': id(str),   if error occurs, deploymentId returns None.
+			'message': (str)
+			}
+			"""
+			data = {}
+			url = "https://" + self.dnac.ip + ":" + self.dnac.port + baseurl + "template-programmer/template/deploy"
+			payload = {
+			  "templateId": templateId,
+			   "targetInfo": [
+			     {
+			      "id": self.id,
+			      "type": "MANAGED_DEVICE_UUID",
+				  "params": templateParams
+			     }
+				]}
+			
+			headers = {
+			  'x-auth-token': self.authToken,
+			  'Content-Type': 'application/json',
+			}
+			response = requests.request("POST", url, headers=headers, json=payload, verify=verifySSL, timeout=10)
+			data = json.loads(response.text)
+			if response.status_code == 202:
+				try:
+					# Trying to get deploymentId from response
+					result = data['deploymentId']
+				except:
+					pass
+				
+				# Trying to get the deployment id with regex due to broken api response:
+				resultRegex = (re.findall(r'Template Deployemnt Id.*', result))
+				if len(resultRegex) is not 0:
+					Id = str(resultRegex).strip("['Template Deployemnt Id: ]")
+					if resultRegex is not None:				
+						data['deploymentId'] = Id
+						data['message'] = 'Id found with regex'
+						self.deploymentId = data
+						return data
+
+			return data
+
+	def deployTemplateStatus(self, **kwargs):
+		try:
+			self.deploymentId = kwargs['id']
+		except:
+			pass
+
+
+		if self.deploymentId['deploymentId'] == None:
+			return self.deploymentId['message']
+		else:
+			url = "https://" + self.dnac.ip + ":" + self.dnac.port + "/dna/intent/api/v1/template-programmer/template/deploy/status/" + self.deploymentId['deploymentId']
+			payload = {}
+			headers = {
+			'x-auth-token': self.authToken,
+			'Content-Type': 'application/json',
+			}
+			response = requests.request("GET", url, headers=headers, json=payload, verify=verifySSL, timeout=timeout)
+			
+			if response.status_code == 404:
+				data = {
+				'message': 'not found'
+				}
+				return data, 404
+			
+			data = json.loads(response.text)
+			
+			if 'status' in data:
+				return data['status']
+			else:
+				return data
+
+	def deployTemplateReport(self, deploymentId):
+		try:
+			self.deploymentId = kwargs['id']
+		except:
+			return None
+		url = "https://" + self.dnac.ip + ":" + self.dnac.port + "/dna/intent/api/v1/template-programmer/template/deploy/status/" + self.deploymentId
+		payload = {}
+		headers = {
+		'x-auth-token': self.authToken,
+		'Content-Type': 'application/json',
+		}
+		response = requests.request("GET", url, headers=headers, json=payload, verify=verifySSL, timeout=timeout)
+
+		data = json.loads(response.text)
+		return data
+
+
+
+	def findNextPortchannel(self):
+		url = "https://" + self.dnac.ip + ":" + self.dnac.port + baseurl + "interface/network-device/" + self.id
+		payload = {}
+		headers = {
+			  'x-auth-token': self.authToken,
+			  'Content-Type': 'application/json',
+			}
+		response = requests.request("GET", url, headers=headers, json=payload, verify=verifySSL, timeout=5)
+		config = json.loads(response.text)
+
+		existing_ids = []
+		for interface in config['response']:
+			if re.match(r'Port-channel.*', str(interface['portName'])):
+				intf = int(str(interface['portName']).strip("'Port-channel"))
+				existing_ids.append(intf)
+					
+		for i in range(1,49):
+			if (i) not in existing_ids:
+				next_id = i
+				break
+		return next_id
+		
+	def assignToSite(self, siteId):
+		url = "https://" + self.dnac.ip + ":" + self.port + "/dna/system/api/v1/site/" + siteId + "/device"
+		payload = {
+		  "device": [
+		    {
+		      "ip": self.ip
+		    }
+		  ]
+		}
+		print (payload)
+		headers = {
+		'x-auth-token': self.authToken,
+		'Content-Type': 'application/json',
+		'__runsync': 'true',
+		'__timeout': '10',
+		'__persistbapioutput': 'true',
+		}
+		response = requests.request("POST", url, headers=headers, json=payload, verify=verifySSL, timeout=timeout)
+		#data = json.loads(response.text)
+		return response.text
+
+
+
+	def getNeighbors(self):
+		connections = self.getConnections()
+		neighbors = []
+		for link in connections:
+			if link['remotenode'] in neighbors:
+				continue
+			else:
+				neighbors.append(link['remotenode'])
+		return neighbors
+
+
+	#return every interface connected to us from specific neighbor
+	def getNeighborIfs(self, neighbor):
+		connections = self.getConnections()
+		interfaces = []
+		for link in connections:
+			if link['remotenode'] == neighbor:
+				interfaces.append(link['remoteif'])
+		return interfaces
+
+
+	def getModules(self):
+		url = "https://" + self.dnac.ip + ":" + self.port + baseurl + "network-device/module?deviceId=" + self.id
+		payload = {}
+		headers = {
+		'x-auth-token': authToken
+		}
+		response = requests.request("GET", url, headers=headers, data = payload, verify=verifySSL)
+		data = json.loads(response.text)
+		modules = data['response']
+
+		self.modules = modules
+		
+		switches = []
+		for module in modules:
+				name = module['name']
+				switch = str((re.findall(r'Switch \d', name))).strip("[']")
+				switches.append(switch)
+		self.stackcount = len((set(switches)))
+		
+		return modules
+
+	def claimDevice(self, siteId, **kwargs):
+		url = "https://" + self.dnac.ip + ":" + self.port + "/api/v1/onboarding/pnp-device/site-claim"
+		try:
+			payload = {
+		    "siteId": siteId,
+		     "deviceId": pnpDeviceId,
+		     "type": "Default",
+		     "imageInfo": {"imageId": "None", "skip": true},
+		     "configInfo": {"configId": kwargs['templateId'], "configParameters":[kwargs[params]]}
+			}
+		except:
+			payload = {
+	        "siteId": siteId,
+	         "deviceId": self.id,
+	         "type": "Default",
+	         "imageInfo": {"imageId": "None", "skip": "true"},
+	         "configInfo": {"configId": "", "configParameters":[]}
+			}
+
+		headers = {
+		'x-auth-token': authToken,
+		'Content-Type': 'application/json',
+		}
+		response = requests.request("POST", url, headers=headers, json=payload, verify=verifySSL, timeout=timeout)
+		data = json.loads(response.text)
+		return data
